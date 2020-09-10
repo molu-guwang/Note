@@ -1,0 +1,95 @@
+docker 网络
+
+Host 模式介绍：
+容器将不会虚拟出自己的网卡，配置自己的IP等，而是使用宿主机的IP和端口。
+1、容器与主机在相同的网络命名空间下面，使用相同的网络协议栈，容器可以直接使用主机的所有网络接口
+2、host 模式不能使用端口映射和自定义路由规则，这些都与主机一致，-p 与-icc 参数是无效的
+3、host 模式下面的网络模型是最简单和最低延迟的模式，容器进程直接与主机网络接口通信，与物理机性能一致
+
+container模式
+与一个已存在的容器共享一个网络空间。
+而不是和宿主机共享。新创建的容器不会创建自己的网卡，配置自己的IP，而是和一个指定的容器共享IP、端口范围等。
+同样，两个容器除了网络方面，其他的如文件系统、进程列表等还是隔离的。两个容器的进程可以通过lo网卡设备通信。
+
+none
+不使用网络。
+
+
+bridge 网络模型介绍
+默认网络
+1、每一个容器使用自己的网络命名空间
+2、每个容器的网络与主机的bridge 设备连接（主机与容器通信，容器间通信）
+3、主机NAT（端口映射） 容器里面的数据包ip 与外部通信
+4、官网推荐使用自定义bridge 网络，不使用默认的docker0。
+自定义的bridge 比docker 默认的bridge 网络有更多功能和灵活性，详情见官网
+5、各个bridge 里面的网络隔离，实现了自己局网连通，隔离其他局网
+在bridge模式下，连在同一网桥上的容器可以相互通信
+（若出于安全考虑，也可以禁止它们之间通信，方法是在DOCKER_OPTS变量中设置–icc=false，这样只有使用–link才能使两个容器通信）
+Docker可以开启容器间通信（意味着默认配置--icc=true），也就是说，宿主机上的所有容器可以不受任何限制地相互通信，
+这可能导致拒绝服务攻击。进一步地，Docker可以通过--ip_forward和--iptables两个选项控制容器间、容器和外部世界的通信。
+
+自定义网络模式
+bridge，overlay，MACVLAN
+
+overlay
+跨主机容器通讯
+
+macvlan
+每个容器虚拟一张带mac的网卡，基于虚拟vlan通讯
+
+
+
+
+
+
+
+
+docker 安装
+
+curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+yum install -y yum-utils   device-mapper-persistent-data   lvm2
+yum-config-manager     --add-repo     http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+yum install docker-ce docker-ce-cli containerd.io
+yum install docker-ce-19.03.9-3.el7 docker-ce-cli-19.03.9-3.el7 containerd.io
+systemctl start docker
+
+docker加速
+echo '{
+    "registry-mirrors":["https://almtd3fa.mirror.aliyuncs.com"]
+
+}' >> /etc/docker/daemon.json
+echo "deb http://mirrors.163.com/debian/ jessie main non-free contrib
+deb http://mirrors.163.com/debian/ jessie-proposed-updates main non-free contrib
+deb-src http://mirrors.163.com/debian/ jessie main non-free contrib
+deb-src http://mirrors.163.com/debian/ jessie-proposed-updates main non-free contrib" >>/etc/apt/sources.list
+systemctl restart docker
+
+拉取镜像
+docker pull containername:taget
+            容器名：标签
+默认为最新版本
+
+
+
+docker使用
+
+
+查看docker 网络
+docker network ls
+查看某个网络ID/网络模式的详细信息
+docker network inspect networkID/networkTYPE
+
+查看bridge网络信息
+brctl show
+
+docker run -itd --nat bridge --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=gemhone2016 mysql:5.6.36
+					以什么网络启动	    容器名  主机端口:容器端口								基础镜像及标签
+
+docker run -itd -p 8090:8080  -v /home/jenkins/jenkins_data/:/home/jenkins/jenkins_data/ tomcat_test
+									主机目录					挂载于容器目录
+
+docker run -it -v $(pwd)/host-dava:/container-data alpine sh
+
+docker exec -it containername /bin/bash -c 'command'
+宿主机执行docker容器命令，如涉及环境变量。添加export 环境变量
+

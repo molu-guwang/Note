@@ -1,0 +1,72 @@
+多行注释：
+1. 进入命令行模式，按ctrl + v进入 visual block模式，然后按j, 或者k选中多行，把需要注释的行标记起来
+2. 按大写字母I，再插入注释符，例如//
+3. 按esc键就会全部注释了
+
+取消多行注释：
+1. 进入命令行模式，按ctrl + v进入 visual block模式，按字母l横向选中列的个数，例如 // 需要选中2列
+2. 按字母j，或者k选中注释符号
+3. 按d键就可全部取消注释
+
+查看僵尸进程
+ps -A -ostat,ppid,pid,cmd |grep -e '^[Zz]'
+
+
+
+
+vim /etc/docker/daemon.json
+
+{
+    "registry-mirrors":["https://almtd3fa.mirror.aliyuncs.com"]
+}
+
+echo "deb http://mirrors.163.com/debian/ jessie main non-free contrib
+deb http://mirrors.163.com/debian/ jessie-proposed-updates main non-free contrib
+deb-src http://mirrors.163.com/debian/ jessie main non-free contrib
+deb-src http://mirrors.163.com/debian/ jessie-proposed-updates main non-free contrib" >>/etc/apt/sources.list
+
+
+
+
+
+安装top ps命令
+apt-get install procps -y
+
+
+如何查看Linux系统每个ip的连接数
+netstat -n | awk '/^tcp/ {print $5}' | awk -F: '{print $1}' | sort | uniq -c | sort -rn
+
+
+
+
+
+tar: Unexpected EOF in archive
+文件损坏，重传即可
+
+
+hw04378374
+#华为云密码
+szmedi.BIM@2020
+
+
+查看es索引
+curl 192.168.50.56:9200/_cat/indices
+
+curl -XDELETE 192.168.50.56:9200/metricbeat-6.8.1-*
+
+
+tcpdump -i eth0
+
+查看磁盘分区uuid及文件系统格式
+blkid  /dev/vad1
+
+yum install cloud-utils-growpart
+
+grep 关键词 -C 10
+查看关键词前后10行
+
+
+
+点击“开始”—“运行”，输入“regedit”打开注册表，在“HKEY_CLASSES_ROOT\Applications\”中找到无法添加的程序( 比如kmplayer )
+看一下它的“\shell\open\command”数据里的路径是否错误，如果错误，便将其更正或删除。
+完成上述步骤以后，就可以将该程序添加到右键的“打开方式”中了。
