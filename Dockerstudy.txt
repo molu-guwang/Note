@@ -35,7 +35,8 @@ overlay
 跨主机容器通讯
 
 macvlan
-每个容器虚拟一张带mac的网卡，基于虚拟vlan通讯
+每个容器虚拟一张带mac的网卡，基于虚拟vlan通讯。由mac绑定vlan。适合会频繁变动网络拓扑的情况。
+
 
 
 
@@ -64,22 +65,58 @@ deb-src http://mirrors.163.com/debian/ jessie main non-free contrib
 deb-src http://mirrors.163.com/debian/ jessie-proposed-updates main non-free contrib" >>/etc/apt/sources.list
 systemctl restart docker
 
+修改docker存储目录
+systemctl stop docker
+mkdir -p /home/docker/lib
+mkdir -p /etc/systemd/system/docker.service.d/
+echo " [Service]
+ExecStart=
+ExecStart=/usr/bin/dockerd  --graph=/home/docker/lib/docker " >> /etc/systemd/system/docker.service.d/devicemapper.conf
+systemctl daemon-reload
+systemctl restart docker
+systemctl enable docker
+查看目录是否为/home/docker/lib/docker
+docker info
+
+
 拉取镜像
 docker pull containername:taget
             容器名：标签
 默认为最新版本
 
 
+docker导出本地容器
+docker export 58dbc2162141 > tomcat.tar
+              容器ID/容器名    导出文件名及路径
+导入到本地容器
+docker import - new_tomcat_server < tomcat.tar
+                    新镜像名          导入文件名及路径
 
+docker导出本地镜像
+docker save busybox-1 > /home/save.tar
+            镜像名         导出文件名及路径
+            不要用镜像ID，否则镜像名和标签都会是none
+导入到本地镜像
+docker load < /home/save.tar
+
+save更完整，import会丢失镜像历史，无法做层回滚。
 docker使用
 
+重命名镜像
+docker tag [镜像id] [新镜像名称]:[新镜像标签]
 
 查看docker 网络
 docker network ls
 查看某个网络ID/网络模式的详细信息
 docker network inspect networkID/networkTYPE
 
+创建自定义网络
+docker network create -d bridge mynet2
+删除网络
+docker network rm mynet2
+
 查看bridge网络信息
+yum install -y bridge-utils
 brctl show
 
 docker run -itd --nat bridge --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=gemhone2016 mysql:5.6.36
@@ -93,3 +130,13 @@ docker run -it -v $(pwd)/host-dava:/container-data alpine sh
 docker exec -it containername /bin/bash -c 'command'
 宿主机执行docker容器命令，如涉及环境变量。添加export 环境变量
 
+docker打包正在运行的镜像
+docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
+
+-a :提交的镜像作者；
+-c :使用Dockerfile指令来创建镜像；
+-m :提交时的说明文字；
+-p :在commit时，将容器暂停。
+
+默认情况下，正在提交的容器及其进程将在映像提交时暂停。 这减少了在创建提交过程中遇到数据损坏的可能性。 如果不需要此行为，请将--pause选项设置为false。
+-c 选项将对创建的映像应用Dockerfile指令。支持Dockerfile指令 CMD|ENTRYPOINT|ENV|EXPOSE|LABEL|ONBUILD|USER|VOLUME|WORKDIR

@@ -38,6 +38,10 @@ netstat -n | awk '/^tcp/ {print $5}' | awk -F: '{print $1}' | sort | uniq -c | s
 
 
 
+echo 'net.ipv4.ip_forward = 1
+vm.max_map_count=262144' >> /etc/sysctl.conf
+sysctl -p
+
 
 
 tar: Unexpected EOF in archive
