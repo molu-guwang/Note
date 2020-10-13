@@ -15,7 +15,7 @@ RUN curl -sL https://rpm.nodesource.com/setup_10.x | bash - &&  yum install node
 && npm install -g n &&n lts \
 && npm install -g pm2 && npm install \
 && npm install -g yarn \
-&& rm -rf /usr/bin/node && ln -s /usr/local/bin/node /usr/bin/ \
+&& rm -rf /usr/bin/node && ln -s /usr/local/bin/node /usr/bin/
 
 # Install Nginx
 RUN wget http://nginx.org/download/nginx-1.16.1.tar.gz && tar zxvf nginx-1.16.1.tar.gz
