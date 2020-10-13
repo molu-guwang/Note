@@ -79,6 +79,18 @@ systemctl enable docker
 docker info
 
 
+
+
+docker操作
+
+查找image
+docker search [imagename]
+
+上传image
+docker push [imagename]
+本地上传到私有仓库
+docker push IP:端口/image-name
+
 拉取镜像
 docker pull containername:taget
             容器名：标签
@@ -124,11 +136,42 @@ docker run -itd --nat bridge --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=ge
 
 docker run -itd -p 8090:8080  -v /home/jenkins/jenkins_data/:/home/jenkins/jenkins_data/ tomcat_test
 									主机目录					挂载于容器目录
+可以使用-v来创建或者指定一个数据卷/单个文件挂载到容器里，一次run可挂载多个数据卷
+类似mount 权限默认读写，只读用:ro指定
+挂载数据卷容器使用--volumes-from
+数据卷容器不需要保持在运行状态
+可以利用这个来保存、备份、迁移容器数据
+
+-d #后台运行容器，并返回容器ID
+-i #以交互式模式运行容器,让标准输出保持打开，常与-t参数同时使用
+-t #给容器重新分配一个伪终端，添加tag，指定新镜像的用户信息，常与-i参数同时使用
+–name #给容器指定一个名称  容器名唯一
+-b 指定容器挂载网桥
+-icc=true|false 是否支持容器间通信，默认支持
+-iptables=true|false 是否允许docker添加iptables规则
+-dns=xxx 指定容器DNS服务器，默认主机/etc/resolv.conf 里的配置
 
 docker run -it -v $(pwd)/host-dava:/container-data alpine sh
 
 docker exec -it containername /bin/bash -c 'command'
 宿主机执行docker容器命令，如涉及环境变量。添加export 环境变量
+
+
+容器通外网需要设置本机开启路由转发，同时在启动docker时添加--ip-foeward=true
+查看容器端口映射情况
+docker port 容器名 映射后的端口
+
+容器互联 --link
+docker run -d -p --name wed --link db:db  training/webapp python app.py
+                   要连接的容器的名称:连接的别名
+其中连接信息在环境变量及/etc/hosts中
+可使用 env查看
+docker run --rm --name web2 --link db:db training/webapp env
+或者查看父容器的hosts
+docker run -ti -rm --link db:db training/webapp /bin/bash
+root@xxxxx:/opt/webapp#cat /etc/hosts
+其中，第一行是父容器名		第二行是连接的容器名
+可安装ping命令来测试容器间的网络连通性。
 
 docker打包正在运行的镜像
 docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
@@ -140,3 +183,91 @@ docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
 
 默认情况下，正在提交的容器及其进程将在映像提交时暂停。 这减少了在创建提交过程中遇到数据损坏的可能性。 如果不需要此行为，请将--pause选项设置为false。
 -c 选项将对创建的映像应用Dockerfile指令。支持Dockerfile指令 CMD|ENTRYPOINT|ENV|EXPOSE|LABEL|ONBUILD|USER|VOLUME|WORKDIR
+
+
+dockerfile
+
+
+分为四部分：
+基础镜像信息、维护者信息、镜像操作指令、容器启动时的执行指令
+
+其中
+FROM 指明基础镜像，同时创建多个镜像时，可多个FROM，每个镜像一次，且FROM必须为第一条指令。
+
+MAINTAINER 指定维护者/镜像编辑者的邮件地址
+
+ENV 指定环境变量，会被后续RUN指令使用，在容器运行时保持。
+格式 ENV <key> <value>
+
+RUN 对镜像执行的指令，每运行一条RUN，镜像添加一层可读层，并提交为新的镜像。
+基本格式：
+RUN <command> 或 RUN ["executable"，"param1"，"param2"]
+前者为将在shell终端运行的命令；后者为exec执行的可执行文件。指定其他终端可使用后者实现，如 RUN ["/bin/bash","-C","hello word"]
+
+ENTRPOINT
+基本格式：
+ENTRPOINT ["executable","param1","param2"]  使用exec执行
+ENTRPOINT command param1 param2 在/bin/bash中执行，提供给需要交互的应用
+每个dockerfile只能有一个ENTRPOINT，指定多个时，最后一个生效
+
+VOLUME 创建一个从本地主机或本地其他容器的挂载点
+VOLUME ["/data"]
+
+EXPOSE 指定容器暴露的端口号，启动容器时需要指定-P docker主机会自动分配端口转发到此端口
+
+USER 指定运行容器的用户名及UID，后续RUN也会使用这个指定用户
+
+WORKDIR 为后续的RUN、CMD、ENTRPOINT指定配置的工作目录
+使用多个WORKDIR 后续命令参数为相对路径，则会继承之前WORKDIR路径
+
+ONBUILD 配置所创建镜像为其他新镜像的基础镜像
+ONBUILD [INSTRUCTION]
+如
+...
+ONBUILD ADD . /app/src
+ONBUILD RUN /usr/local/bin/python-build --dir /app/src
+...
+以上为镜像image-A
+
+FROM image-A指定image-A为基础镜像时，ONBUILD就等价于以下两条命令:
+ADD . /app/src
+RUN /usr/local/bin/python-build --dir /app/src
+
+ADD/COPY 指定文件到容器中
+格式 ADD/COPY <src> <dest>  其中，源地址可以是dockerfile所在目录的相对路径、url；tar包会自动解压为目录
+源地址为本地目录时建议使用COPY
+
+CMD 指定容器运行时的操作指令
+基本格式：
+CMD ["executable","param1","param2"]  使用exec执行
+CMD command param1 param2 在/bin/bash中执行，提供给需要交互的应用
+CMD ["param1","param2"] 提供给ENTRYPOINT的默认参数
+每个dockerfile只能有一条CMD命令，如果指定多条，只有最后一条会被执行。
+如果启动容器时指定了运行命令，则会覆盖掉CMD指定的命令
+
+创建镜像：
+编写玩dockerfile后，可使用docker build来创建镜像
+docker build [选项] 路径
+该命令将会读取路径下（包括字目录）的dockerfile，并将其中dockerfile发送给docker服务端，由服务端来创建镜像
+
+
+
+/usr/bin/docker-current: Error response from daemon: error creating overlay mount to /var/lib/docker/overlay2/d59b250eebf427a7bbd36dd1a834a969? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ?196589187a77720e0148985ddae6ce13-init/merged: invalid argument.
+See '/usr/bin/docker-current run --help'.
+
+因为image用的overlay2文件系统，而系统默认只能识别overlay文件系统
+
+更新文件系统
+systemctl stop docker
+rm -rf /var/lib/docker? #会删除docker images
+vi /etc/sysconfig/docker-storage
+指定 DOCKER_STORAGE_OPTIONS="--storage-driver overlay"
+
+vi /etc/sysconfig/docker
+#OPTIONS='--selinux-enabled --log-driver=journald --signature-verification=false'
+改为
+OPTIONS='--log-driver=journald --signature-verification=false'
+
+systemctl start docker
+
+注意：一个镜像不能超过127层
