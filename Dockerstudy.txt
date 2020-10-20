@@ -142,6 +142,7 @@ docker run -itd -p 8090:8080  -v /home/jenkins/jenkins_data/:/home/jenkins/jenki
 数据卷容器不需要保持在运行状态
 可以利用这个来保存、备份、迁移容器数据
 
+-e #指定环境变量    格式：环境变量：值
 -d #后台运行容器，并返回容器ID
 -i #以交互式模式运行容器,让标准输出保持打开，常与-t参数同时使用
 -t #给容器重新分配一个伪终端，添加tag，指定新镜像的用户信息，常与-i参数同时使用
@@ -155,6 +156,7 @@ docker run -it -v $(pwd)/host-dava:/container-data alpine sh
 
 docker exec -it containername /bin/bash -c 'command'
 宿主机执行docker容器命令，如涉及环境变量。添加export 环境变量
+-u 指定执行命令的用户
 
 
 容器通外网需要设置本机开启路由转发，同时在启动docker时添加--ip-foeward=true
@@ -173,6 +175,13 @@ root@xxxxx:/opt/webapp#cat /etc/hosts
 其中，第一行是父容器名		第二行是连接的容器名
 可安装ping命令来测试容器间的网络连通性。
 
+
+给正在运行的容器添加环境变量
+添加在如下两个文件
+/etc/profile
+/{user}/.bashrc
+再source即可生效
+
 docker打包正在运行的镜像
 docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
 
@@ -183,6 +192,15 @@ docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
 
 默认情况下，正在提交的容器及其进程将在映像提交时暂停。 这减少了在创建提交过程中遇到数据损坏的可能性。 如果不需要此行为，请将--pause选项设置为false。
 -c 选项将对创建的映像应用Dockerfile指令。支持Dockerfile指令 CMD|ENTRYPOINT|ENV|EXPOSE|LABEL|ONBUILD|USER|VOLUME|WORKDIR
+
+
+docker在运行容器添加暴露端口
+firewall-cmd --add-forward-port=port=7082:proto=tcp:toaddr=172.17.0.2:toport=7082 --permanent
+                             主机暴露端口                        容器IP：容器暴露端口
+添加对应链的防火墙规则
+iptables -I INPUT 1 -p tcp  -m state --state NEW -m tcp --dport 7082 -j ACCEPT
+iptables -I DOCKER 1  -p tcp  -m state --state NEW -m tcp --dport 7082 -j ACCEPT
+iptables -I IN_public_allow 1  -p tcp  -m state --state NEW -m tcp --dport 7082 -j ACCEPT
 
 
 dockerfile
@@ -259,7 +277,7 @@ See '/usr/bin/docker-current run --help'.
 
 更新文件系统
 systemctl stop docker
-rm -rf /var/lib/docker? #会删除docker images
+rm -rf /var/lib/docker #会删除docker images
 vi /etc/sysconfig/docker-storage
 指定 DOCKER_STORAGE_OPTIONS="--storage-driver overlay"
 

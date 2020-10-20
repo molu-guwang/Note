@@ -11,66 +11,52 @@
 查看僵尸进程
 ps -A -ostat,ppid,pid,cmd |grep -e '^[Zz]'
 
-
-
-
-vim /etc/docker/daemon.json
-
-{
-    "registry-mirrors":["https://almtd3fa.mirror.aliyuncs.com"]
-}
-
-echo "deb http://mirrors.163.com/debian/ jessie main non-free contrib
-deb http://mirrors.163.com/debian/ jessie-proposed-updates main non-free contrib
-deb-src http://mirrors.163.com/debian/ jessie main non-free contrib
-deb-src http://mirrors.163.com/debian/ jessie-proposed-updates main non-free contrib" >>/etc/apt/sources.list
-
-
-
-
-
 安装top ps命令
 apt-get install procps -y
-
 
 如何查看Linux系统每个ip的连接数
 netstat -n | awk '/^tcp/ {print $5}' | awk -F: '{print $1}' | sort | uniq -c | sort -rn
 
-
-
+开启路由转发及设置虚拟内存
 echo 'net.ipv4.ip_forward = 1
 vm.max_map_count=262144' >> /etc/sysctl.conf
 sysctl -p
 
-
-
 tar: Unexpected EOF in archive
 文件损坏，重传即可
 
-
-hw04378374
-#华为云密码
-szmedi.BIM@2020
-
-
 查看es索引
 curl 192.168.50.56:9200/_cat/indices
-
+删除索引
 curl -XDELETE 192.168.50.56:9200/metricbeat-6.8.1-*
-
 
 tcpdump -i eth0
 
 查看磁盘分区uuid及文件系统格式
 blkid  /dev/vad1
 
-yum install cloud-utils-growpart
-
 grep 关键词 -C 10
 查看关键词前后10行
 
 
+安装中文字体
+yum install -y fontconfig mkfontscale
+查看已安装的字体
+fc-list
+查看已安装的中文字体
+fc-list :lang=zh
 
+拷贝windows C:\Windows\Fonts\字体.TTF文件到/usr/share/fonts/
+建立字体索引信息，更新字体缓存，使用如下命令：
+cd /usr/share/fonts/
+mkfontscale
+mkfontdir
+fc-cache
+fc-list :lang=zh
+
+
+
+windows打开方式找不到安装的应用
 点击“开始”—“运行”，输入“regedit”打开注册表，在“HKEY_CLASSES_ROOT\Applications\”中找到无法添加的程序( 比如kmplayer )
 看一下它的“\shell\open\command”数据里的路径是否错误，如果错误，便将其更正或删除。
 完成上述步骤以后，就可以将该程序添加到右键的“打开方式”中了。
