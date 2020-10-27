@@ -1,0 +1,92 @@
+harbor:
+
+一个开源镜像仓库，可通过基于角色的访问控制来保护镜像，新版本的Harbor还增加了扫描镜像中的漏洞并将镜像签名为受信任。
+提供合规性，性能和互操作性，以帮助你跨Kubernetes和Docker等云原生计算平台持续，安全地管理镜像。
+
+
+ 易于部署：可通过Docker compose或Helm Chart 部署 Harbor。
+
+云原生注册表：Harbor 支持容器镜像和Helm图表，可作为容器原生运行时和编排平台等云原生环境的注册表。
+
+基于角色控制：用户通过项目访问不同的存储库，并且用户可以对项目下的镜像或Helm图表具有不同的权限。
+
+基于策略的复制：可以使用过滤器基于策略在多个注册表实例之间复制（同步）镜像和图表。
+
+镜像删除和垃圾收集：系统管理员可以运行垃圾收集作业，以便可以删除镜像，并可以定期释放其空间。
+
+漏洞扫描：Harbor会定期扫描映像中的漏洞，并进行策略检查以防止部署易受攻击的映像。
+
+公证人：支持对容器镜像进行签名，以确保真实性和出处。
+
+审核：通过日志跟踪对存储库的所有操作。
+
+图形门户：用户可以轻松浏览，搜索存储库和管理项目。
+
+外部集成：提供RESTful API有助于管理操作，并且易于与外部系统集成。
+
+
+下载地址：https://github.com/goharbor/harbor/releases
+
+安装前置：
+Docker-engine	v17.06.0-ce+
+Docker-compose	v1.18.0+
+Openssl
+
+需要安装docker-compose
+
+# 下载Docker Compose
+curl -L "https://github.com/docker/compose/releases/download/1.23.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+# 授权
+chmod +x /usr/local/bin/docker-compose
+# 创建soft link
+ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+# 验证是否安装成功
+docker-compose --version
+
+
+配置ssl证书：
+（这个必须要配，不然仓库无法登陆）
+mkdir -p /data/cert && chmod -R 777 /data/cert && cd /data/cert
+echo "subjectAltName = IP:121.36.168.105" >> extfile.cnf
+openssl genrsa -out ca.key 2048
+openssl  req -x509 -new -nodes -key ca.key -days 3650 -out ca.crt -subj "/CN=harbor"
+openssl req -newkey rsa:4096 -nodes -sha256 -keyout server.key -out server.csr
+openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -days 3650 -extfile extfile.cnf -out server.crt
+echo "{
+	  "registry-mirrors": ["https://almtd3fa.mirror.aliyuncs.com"],
+	  "insecure-registries": ["121.36.168.105:10443"]
+}" >> /etc/docker/daemon.json
+systemctl restart docker
+docker info
+
+
+
+
+
+tar -xvf harbor-offline-installer-v2.1.0.tgz
+cd harbor
+cp harbor.yml.tmpl harbor.yml
+修改harbor.yml里的端口及证书的绝对路径
+sh install.sh 即可
+
+防火墙打开对应端口
+
+docker login -u admin -p Harbor12345 IP:ssl端口
+login成功即可
+
+push
+docker tag web_server:letsbim 121.36.168.105:10443/images/web_server:letsbim
+docker push 121.36.168.105:10443/images/web_server:letsbim
+
+pull
+docker pull 121.36.168.105:10443/images/web_server:letsbim
+
+如有配置问题
+到harbor安装目录下停止harbor
+docker-compose  down
+./prepare
+启动harbor
+docker-compose  up -d
+
+
+注意：因为是自己生成的ssl证书，故需添加本地配置并登陆后才能进行镜像拉取或者推送到仓库
