@@ -1,8 +1,9 @@
 FROM centos:7
 MAINTAINER letsbim
 # ADD jdk1.8.0_242 /opt/jdk8
-#ENV JAVA_HOME /opt/jdk8
-#ENV PATH $JAVA_HOME/bin:$PATH
+# ENV JAVA_HOME /opt/jdk8
+# ENV PATH $JAVA_HOME/bin:$PATH
+# Change timezone
 RUN rm -rf /etc/localtime &&ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 # Install necessary tools
 RUN yum install -y pcre-devel wget net-tools gcc zlib zlib-devel make openssl-devel
@@ -41,18 +42,18 @@ COPY nginx.conf /etc/nginx/
 RUN mkdir -p /var/lib/nginx/tmp/
 # Install web
 RUN mkdir -p /root/letsbim/{backstage,cloud,cloud-admin,data}
-#COPY ccr-web-tenantdemo.jar  /root/letsbim/backstage/
-#COPY cloud.tar.gz /root/letsbim/cloud/
-#COPY cloud-admin.tar.gz /root/letsbim/cloud-admin/
+# COPY ccr-web-tenantdemo.jar  /root/letsbim/backstage/
+# COPY cloud.tar.gz /root/letsbim/cloud/
+# COPY cloud-admin.tar.gz /root/letsbim/cloud-admin/
 COPY start.sh /root
 # Run cloud
-#WORKDIR /root/letsbim/cloud/
-#RUN  pm2 start npm --watch --name cloud -- run start
+# WORKDIR /root/letsbim/cloud/
+# RUN  pm2 start npm --watch --name cloud -- run start
 # Run cloud-admin
-#WORKDIR /root/letsbim/cloud-admin
-#RUN  pm2 start npm --watch --name cloud-admin -- run start
+# WORKDIR /root/letsbim/cloud-admin
+# RUN  pm2 start npm --watch --name cloud-admin -- run start
 # Run backstage
-#WORKDIR /root/letsbim/backstage/
-#RUN nohup java  -jar ccr-web-tenantdemo.jar > nohup.out 2>&1  & sleep 1
+# WORKDIR /root/letsbim/backstage/
+# RUN nohup java  -jar ccr-web-tenantdemo.jar > nohup.out 2>&1  & sleep 1
 
 ENTRYPOINT nginx -g "daemon off;"
