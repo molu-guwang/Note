@@ -1,0 +1,76 @@
+/etc/firewalld/ 用户配置文件
+
+/usr/lib/firewalld/ 系统配置文件，预置文件
+
+drop（丢弃）
+任何接收的网络数据包都被丢弃，没有任何回复。仅能有发送出去的网络连接。
+block（限制）
+任何接收的网络连接都被 IPv4 的 icmp-host-prohibited 信息和 IPv6 的 icmp6-adm-prohibited 信息所拒绝。
+public（公共）
+在公共区域内使用，不能相信网络内的其他计算机不会对您的计算机造成危害，只能接收经过选取的连接。
+external（外部）
+特别是为路由器启用了伪装功能的外部网。您不能信任来自网络的其他计算，不能相信它们不会对您的计算机造成危害，只能接收经过选择的连接。
+dmz（非军事区）
+用于您的非军事区内的电脑，此区域内可公开访问，可以有限地进入您的内部网络，仅仅接收经过选择的连接。
+work（工作）
+用于工作区。您可以基本相信网络内的其他电脑不会危害您的电脑。仅仅接收经过选择的连接。
+home（家庭）
+用于家庭网络。您可以基本信任网络内的其他计算机不会危害您的计算机。仅仅接收经过选择的连接。
+internal（内部）
+用于内部网络。您可以基本上信任网络内的其他计算机不会威胁您的计算机。仅仅接受经过选择的连接。
+trusted（信任）
+可接受所有的网络连接。
+指定其中一个区域为默认区域是可行的。当接口连接加入了 NetworkManager，它们就被分配为默认区域。安装时，firewalld 里的默认区域被设定为公共区域。
+
+
+
+
+网络连接的可信等级,一对多，一个区域对应多个连接
+drop.xml 拒绝所有的连接
+block.xml 拒绝所有的连接
+public.xml 只允许指定的连接 *默认区域
+external.xml 只允许指定的连接
+dmz.xml 只允许指定的连接
+work.xml 只允许指定的连接
+home.xml 只允许指定的连接
+internal.xml 只允许指定的连接
+trusted.xml 允许所有的连接
+/lib/firewalld/zones 默认和备用区域配置
+/etc/firewalld/zones 用户创建和自定义区域配置文件 覆盖默认配置
+
+
+
+
+启用区域中的 IP 伪装功能
+firewall-cmd [--zone=<zone>] --add-masquerade
+查询区域的伪装状态
+firewall-cmd [--zone=<zone>] --query-masquerade
+# 在区域中启用端口转发或映射
+
+firewall-cmd [--zone=<zone>] --add-forward-port=port=<port>[-<port>]:proto=<protocol> { :toport=<port>[-<port>] | :toaddr=<address> | :toport=<port>[-<port>]:toaddr=<address> }
+端口可以映射到另一台主机的同一端口，也可以是同一主机或另一主机的不同端口。端口号可以是一个单独的端口 <port> 或者是端口范围 <port>-<port> 。
+协议可以为 tcp 或udp 。目标端口可以是端口号 <port> 或者是端口范围 <port>-<port> 。目标地址可以是 IPv4 地址。受内核限制，端口转发功能仅可用于IPv4。
+firewall-cmd --permanent --zone=home --add-forward-port=port=22:proto=tcp:toaddr=127.0.0.2
+查询区域的端口转发或者端口映射
+firewall-cmd [--zone=<zone>] --query-forward-port=port=<port>[-<port>]:proto=<protocol> { :toport=<port>[-<port>] | :toaddr=<address> | :toport=<port>[-<port>]:toaddr=<address> }
+开放防火墙端口
+firewall-cmd --permanent --zone=public --add-port=2379-2380/tcp
+             永久有效       区域          端口/协议
+关闭已开放的端口
+firewall-cmd --permanent --zone=public --remove-port=2379-2380/tcp
+firewall-cmd --add-forward-port=port=80:proto=tcp:toport=8080   # 将80端口的流量转发至8080
+firewall-cmd --add-forward-port=port=80:proto=tcp:toaddr=192.168.0.1 # 将80端口的流量转发至192.168.0.1
+firewall-cmd --add-forward-port=port=80:proto=tcp:toaddr=192.168.0.1:toport=8080 # 将80端口的流量转发至192.168.0.1的8080端口
+热加载配置
+firewall-cmd --reload
+
+
+查看活动的区域
+firewall-cmd --get-active-zones
+
+保存已有的防火墙规则
+firewall-cmd --runtime-to-permanent
+
+
+查看开放的端口
+firewall-cmd --list-all
