@@ -29,6 +29,12 @@ tar: Unexpected EOF in archive
 curl 192.168.50.56:9200/_cat/indices
 删除索引
 curl -XDELETE 192.168.50.56:9200/metricbeat-6.8.1-*
+ES报错
+ElasticSearch ClusterBlockException[blocked by: [FORBIDDEN/12/index read-only / allow delete (api)];
+es保护机制。于占用磁盘85%
+解决办法
+清理磁盘之后
+执行： curl -XPUT -H "Content-Type: application/json" http://xxx.xxx.xx.xx:9300/_all/_settings -d '{"index.blocks.read_only_allow_delete": null}'
 
 tcpdump -i eth0
 

@@ -9,14 +9,16 @@ RUN rm -rf /etc/localtime &&ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localti
 RUN yum install -y pcre-devel wget net-tools gcc zlib zlib-devel make openssl-devel
 WORKDIR /home
 # Install jdk
-RUN wget https://mirrors.tuna.tsinghua.edu.cn/centos/7/os/x86_64/Packages/java-1.8.0-openjdk-1.8.0.242.b08-1.el7.x86_64.rpm \
-&& yum install java-1.8.0-openjdk-1.8.0.242.b08-1.el7.x86_64.rpm -y
+RUN wget https://mirrors.tuna.tsinghua.edu.cn/centos/7/os/x86_64/Packages/java-1.8.0-openjdk-1.8.0.262.b10-1.el7.x86_64.rpm \
+&& yum install java-1.8.0-openjdk-1.8.0.262.b10-1.el7.x86_64.rpm -y
 # Install node
 RUN curl -sL https://rpm.nodesource.com/setup_10.x | bash - &&  yum install nodejs -y \
 && npm install -g n &&n lts \
 && npm install -g pm2 && npm install \
 && npm install -g yarn \
-&& rm -rf /usr/bin/node && ln -s /usr/local/bin/node /usr/bin/
+&& rm -rf /usr/bin/node && ln -s /usr/local/bin/node /usr/bin/ \
+&& npm config set sass-binary-site http://npm.taobao.org/mirrors/node-sass \
+&& npm config get
 
 # Install Nginx
 RUN wget http://nginx.org/download/nginx-1.16.1.tar.gz && tar zxvf nginx-1.16.1.tar.gz

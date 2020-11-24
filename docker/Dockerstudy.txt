@@ -79,6 +79,9 @@ systemctl enable docker
 docker info
 
 
+systemctl start docker启动失败看不到报错
+
+可用dockerd启动
 
 
 docker操作

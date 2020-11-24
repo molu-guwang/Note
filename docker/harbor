@@ -52,10 +52,13 @@ openssl genrsa -out ca.key 2048
 openssl  req -x509 -new -nodes -key ca.key -days 3650 -out ca.crt -subj "/CN=harbor"
 openssl req -newkey rsa:4096 -nodes -sha256 -keyout server.key -out server.csr
 openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -days 3650 -extfile extfile.cnf -out server.crt
-echo "{
+
+
+
+echo ‘{
 	  "registry-mirrors": ["https://almtd3fa.mirror.aliyuncs.com"],
 	  "insecure-registries": ["121.36.168.105:10443"]
-}" >> /etc/docker/daemon.json
+}’ > /etc/docker/daemon.json
 systemctl restart docker
 docker info
 
