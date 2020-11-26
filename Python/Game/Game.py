@@ -33,8 +33,15 @@ Shoes = {
     'Move_Speed': 1
 }
 
-Treasures = ('Helmet', 'Clothes', 'Weapon', 'Pants', 'Rings', 'Shoes')
+Treasures = ('Helmet',
+             'Clothes',
+             'Weapon',
+             'Pants',
+             'Rings',
+             'Shoes')
+
 Treasures_Own = []
+
 Hero_Initial_Characteristic = {'HP': 10,
                                'MP': 5,
                                'Attack': 4,
@@ -47,8 +54,15 @@ Hero_Initial_Characteristic = {'HP': 10,
                                }
 
 Monster_List = {}
-Monster_Characteristic = {'HP': 40, 'MP': 6, 'Attack': 20, 'Defense': 1, 'EXP': 3, 'Level': 2,
-                          'Crit_Probability': 0, 'Miss_Probability': 1}
+
+Monster_Characteristic = {'HP': 40,
+                          'MP': 6,
+                          'Attack': 20,
+                          'Defense': 1,
+                          'EXP': 3,
+                          'Level': 2,
+                          'Crit_Probability': 0,
+                          'Miss_Probability': 1}
 
 # 英雄属性为初始属性加上装备属性
 Hero_Characteristic = {
