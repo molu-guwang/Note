@@ -18,6 +18,7 @@ RUN curl -sL https://rpm.nodesource.com/setup_10.x | bash - &&  yum install node
 && npm install -g yarn \
 && rm -rf /usr/bin/node && ln -s /usr/local/bin/node /usr/bin/ \
 && npm config set sass-binary-site http://npm.taobao.org/mirrors/node-sass \
+&& npm config set registry https://registry.npm.taobao.org/ \
 && npm config get
 
 # Install Nginx

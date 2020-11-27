@@ -67,7 +67,7 @@ systemctl restart docker
 
 修改docker存储目录
 systemctl stop docker
-mkdir -p /home/docker/lib
+mkdir -p /letsbim/docker/lib
 mkdir -p /etc/systemd/system/docker.service.d/
 echo " [Service]
 ExecStart=

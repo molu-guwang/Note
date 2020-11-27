@@ -69,3 +69,19 @@ windows打开方式找不到安装的应用
 
 防火墙开放不连续端口
 iptables -I INPUT  -m state --state NEW -p tcp -m multiport --dports 3306，6379 -j ACCEPT
+
+
+mysql赋权
+grant all on *.* to root@'%' identified by 'passwd' with grant option;
+flush privileges;
+
+
+[Err] 1055 - Expression #1 of ORDER BY clause is not in GROUP BY clause and contains nonaggregated
+-- 查看SQL_MODE
+SELECT @@sql_mode;
+-- 修改SQL_MODE
+SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+#以上方法只是修改当前数据库的mode，修改所以数据库的mode请修改配置文件
+sql_mode = STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+
+grant all privileges on zabbix.* to zabbix@"%" identified by 'password' with grant option;
