@@ -162,6 +162,18 @@ docker exec -it containername /bin/bash -c 'command'
 -u 指定执行命令的用户
 
 
+docker Centos容器执行systemctl 命令报错：
+Failed to get D-Bus connection: Operation not permitted
+Docker的设计理念是在容器里面不运行后台服务，容器本身就是宿主机上的一个独立的主进程，也可以间接的理解为就是容器里运行服务的应用进程。
+一个容器的生命周期是围绕这个主进程存在的，所以正确的使用容器方法是将里面的服务运行在前台。
+
+再说到systemd，这个套件已经成为主流Linux发行版（比如CentOS7、Ubuntu14+）默认的服务管理，取代了传统的SystemV风格服务管理。
+systemd维护系统服务程序，它需要特权去会访问Linux内核。而容器并不是一个完整的操作系统，只有一个文件系统，而且默认启动只是普通用户这样的权限访问Linux内核。
+需在创建容器时执行如下命令
+docker run -d -name centos7 --privileged=true centos:7 /usr/sbin/init
+
+要么找到命令的绝对路径，直接执行命令，不用systemctl代理
+
 容器通外网需要设置本机开启路由转发，同时在启动docker时添加--ip-foeward=true
 查看容器端口映射情况
 docker port 容器名 映射后的端口
