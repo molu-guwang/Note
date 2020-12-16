@@ -304,3 +304,126 @@ OPTIONS='--log-driver=journald --signature-verification=false'
 systemctl start docker
 
 注意：一个镜像不能超过127层
+
+
+
+
+docker compose
+通过 docker compose 管理的一个项目被抽象称为一个 project，它是由一组关联的应用容器组成的一个完整的业务单元。
+简单点说就是一个 docker-compose.yml 文件定义一个 project。
+我们可以在执行 docker-compose 命令时通过 -p 选项指定 project 的名称，如果不指定，则默认是 docker-compose.yml 文件所在的目录名称。
+Compose 是 docker 提供的一个命令行工具，用来定义和运行由多个容器组成的应用。
+运行步骤
+定义 Dockerfile
+定义 docker-compose.yml
+运行 docker-compose up
+
+docker-compose 定义了一组service来组成一个project，通过docker-compose.yml中service的定义与container建立关系(service与容器的对应关系)，
+最后使用container来完成对docker-py(Python版的docker client) 的调用，向docker daemon发起http请求。
+
+
+
+docker-compose.yml 属性
+
+version：指定 docker-compose.yml 文件的写法格式
+context：Dockerfile的文件路径，也可以是到链接到git仓库的url，当提供的值是相对路径时，被解析为相对于撰写文件的路径，此目录也是发送到Docker守护进程的context
+services：多个容器集合
+build：配置构建时，Compose 会利用它自动构建镜像，该值可以是一个路径，也可以是一个对象，用于指定 Dockerfile 参数
+command：覆盖容器启动后默认执行的命令
+dns：配置 dns 服务器，可以是一个值或列表
+dns_search：配置 DNS 搜索域，可以是一个值或列表
+environment：环境变量配置，可以用数组或字典两种方式
+env_file：从文件中获取环境变量，可以指定一个文件路径或路径列表，其优先级低于 environment 指定的环境变量
+expose：暴露端口，只将端口暴露给连接的服务，而不暴露给主机
+image：指定服务所使用的镜像
+network_mode：设置网络模式
+ports：对外暴露的端口定义，和 expose 对应
+links：将指定容器连接到当前连接，可以设置别名，避免ip方式导致的容器重启动态改变的无法连接情况
+volumes：挂载一个目录或者一个已存在的数据卷容器，可以直接使用 [HOST:CONTAINER]格式，或者使用[HOSTCONTAINERro]格式，后者对于容器来说，数据卷是只读的，可以有效保护宿主机的文件系统
+logs：日志输出信息
+dockerfile：使用dockerfile文件来构建，必须指定构建路径
+image：指定服务的镜像名称或镜像ID。如果镜像在本地不存在，Compose将会尝试拉取镜像
+restart：重启策略
+container_name：Compose容器名称格式是：<项目名称><服务名称><序号> 可以自定义项目名称、服务名称，但如果想完全控制容器的命名，可以使用标签指定
+hostname：容器的hostname
+networks：设置网络模式
+
+
+eg1：
+version: '3.3'
+
+services:
+  gateway:
+    build:
+      context: ../dc3-gateway/
+      dockerfile: ./Dockerfile
+    image: pnoker/dc3-gateway:1.0.0
+    restart: always
+    ports:
+      - 8000:8000
+    container_name: dc3-gateway
+    hostname: dc3-gateway
+    volumes:
+      - logs:/dc3-gateway/dc3/logs
+    networks:
+      dc3net:
+        aliases:
+          - dc3-gateway
+volumes:
+  logs:
+
+networks:
+  dc3net:
+    driver: 'bridge'
+
+
+
+
+
+
+当服务的配置发生更改时，可使用 docker-compose up 命令更新配置
+此时，Compose 会删除旧容器并创建新容器，新容器会以不同的 IP 地址加入网络，名称保持不变，任何指向旧容起的连接都会被关闭，重新找到新容器并连接上去
+
+
+安装：
+检查是否有pip
+pip -V
+安装epel源
+yum -y install epel-release*
+安装pip
+yum -y install python-pip
+查看pip版本
+pip -V
+升级pip
+pip install --upgrade pip
+安装docker-compose
+pip install docker-compose
+查看docker-compose版本
+docker-compose -version
+
+
+docker-compose -f docker-compose-demo.yml up -d
+-f 指定yaml文件，默认docker-compose.yml
+up/down 启动状态
+-d 后台运行
+
+查看日志
+docker-compose -f docker-compose-demo.yml logs
+
+docker-compose up -d nginx 构建建启动nignx容器
+docker-compose exec nginx bash 登录到nginx容器中
+docker-compose down 删除所有nginx容器,镜像
+docker-compose ps 显示所有容器
+docker-compose restart nginx 重新启动nginx容器
+docker-compose run --no-deps --rm php-fpm php -v 在php-fpm中不启动关联容器，并容器执行php -v 执行完成后删除容器
+docker-compose build nginx 构建镜像 。
+docker-compose build --no-cache nginx 不带缓存的构建。
+docker-compose logs nginx 查看nginx的日志
+docker-compose logs -f nginx 查看nginx的实时日志
+docker-compose config -q 验证（docker-compose.yml）文件配置，当配置正确时，不输出任何内容，当文件配置错误，输出错误信息。
+docker-compose events --json nginx 以json的形式输出nginx的docker日志
+docker-compose pause nginx 暂停nignx容器
+docker-compose unpause nginx 恢复ningx容器
+docker-compose rm nginx 删除容器（删除前必须关闭容器）
+docker-compose stop nginx 停止nignx容器
+docker-compose start nginx 启动nignx容器
