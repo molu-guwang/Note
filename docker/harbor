@@ -93,3 +93,7 @@ docker-compose  up -d
 
 
 注意：因为是自己生成的ssl证书，故需添加本地配置并登陆后才能进行镜像拉取或者推送到仓库
+
+清理harbor的空间
+web页面删除镜像是软删除，不会清理磁盘空间，需要在web页面删除后，在harbor安装目录重启harbor docker-compose集群
+2.0版本以上重启会自动清理空间

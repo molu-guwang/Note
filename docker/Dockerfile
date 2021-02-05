@@ -41,14 +41,14 @@ RUN cd nginx-1.16.1 && ./configure --prefix=/usr/share/nginx --sbin-path=/usr/sb
 --with-stream_ssl_module   && make && make install
 
 # ADD Nginx.conf
-COPY nginx.conf /etc/nginx/
+#COPY nginx.conf /etc/nginx/
 RUN mkdir -p /var/lib/nginx/tmp/
 # Install web
 RUN mkdir -p /root/letsbim/{backstage,cloud,cloud-admin,data}
 # COPY ccr-web-tenantdemo.jar  /root/letsbim/backstage/
 # COPY cloud.tar.gz /root/letsbim/cloud/
 # COPY cloud-admin.tar.gz /root/letsbim/cloud-admin/
-COPY start.sh /root
+#COPY start.sh /root
 # Run cloud
 # WORKDIR /root/letsbim/cloud/
 # RUN  pm2 start npm --watch --name cloud -- run start

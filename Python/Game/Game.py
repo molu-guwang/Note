@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 # -*- coding:utf-8 -*-
 
+import sys
+
 from random import randrange
 
 Helmet = {
@@ -80,6 +82,8 @@ Hero_Characteristic = {
 
 print(Hero_Initial_Characteristic)
 print(Hero_Characteristic)
+print(id(Hero_Initial_Characteristic['HP']))
+print(id(Hero_Characteristic['HP_Max']))
 
 # 几率
 print(randrange(1, 100))
@@ -122,7 +126,6 @@ def Fight():
         elif Hero_HP_Remind < 0:
             print('You are death')
 
-
 def Player_Choice():
     if Choice == 'run':
         print("You are running.")
@@ -148,7 +151,9 @@ def Level_Up():
         Hero_Initial_Characteristic['Move_Speed'] += 0.25
         Hero_Characteristic['HP_Remind'] = Hero_Characteristic['HP_Max']
         print(Hero_Initial_Characteristic)
+        print(id(Hero_Initial_Characteristic['HP']))
         print(Hero_Characteristic)
+        print(id(Hero_Characteristic['HP_Max']))
 
 
 Choice = input("please choose you choice:"

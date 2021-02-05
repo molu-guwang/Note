@@ -66,7 +66,7 @@ systemctl restart docker
 
 修改docker存储目录
 systemctl stop docker
-mkdir -p /letsbim/docker/lib
+mkdir -p /home/docker/lib
 mkdir -p /etc/systemd/system/docker.service.d/
 echo " [Service]
 ExecStart=
@@ -113,7 +113,8 @@ docker save busybox-1 > /home/save.tar
 导入到本地镜像
 docker load < /home/save.tar
 
-save更完整，import会丢失镜像历史，无法做层回滚。
+save更完整，export会丢失镜像历史，无法做层回滚。
+save文件对比export文件会更大
 
 
 docker使用
@@ -159,7 +160,8 @@ docker run -itd -p 8090:8080  -v /home/jenkins/jenkins_data/:/home/jenkins/jenki
 -b 指定容器挂载网桥
 -icc=true|false 是否支持容器间通信，默认支持
 -iptables=true|false 是否允许docker添加iptables规则
--dns=xxx 指定容器DNS服务器，默认主机/etc/resolv.conf 里的配置
+--dns=xxx 指定容器DNS服务器，默认主机/etc/resolv.conf 里的配置
+成都电信dns 202.98.96.68
 
 docker run -it -v $(pwd)/host-dava:/container-data alpine sh
 
@@ -224,8 +226,7 @@ iptables -I DOCKER 1  -p tcp  -m state --state NEW -m tcp --dport 7082 -j ACCEPT
 iptables -I IN_public_allow 1  -p tcp  -m state --state NEW -m tcp --dport 7082 -j ACCEPT
 
 
-dockerfile
-
+Dockerfile
 
 分为四部分：
 基础镜像信息、维护者信息、镜像操作指令、容器启动时的执行指令
@@ -353,7 +354,7 @@ restart：重启策略
 container_name：Compose容器名称格式是：<项目名称><服务名称><序号> 可以自定义项目名称、服务名称，但如果想完全控制容器的命名，可以使用标签指定
 hostname：容器的hostname
 networks：设置网络模式
-
+depends_on: 依赖于
 
 eg1：
 version: '3.3'
