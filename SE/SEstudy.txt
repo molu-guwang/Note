@@ -68,7 +68,7 @@ windows打开方式找不到安装的应用
 完成上述步骤以后，就可以将该程序添加到右键的“打开方式”中了。
 
 防火墙开放不连续端口
-iptables -I INPUT  -m state --state NEW -p tcp -m multiport --dports 3306，6379 -j ACCEPT
+iptables -I INPUT  -m state --state NEW -p tcp -m multiport --dports 3306,6379 -j ACCEPT
 
 
 mysql赋权

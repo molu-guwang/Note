@@ -170,6 +170,9 @@ docker exec -it containername /bin/bash -c 'command'
 -u 指定执行命令的用户
 
 
+docker images | grep none |tr -s ' ' |cut -d ' ' -f 3 |xargs docker rmi  -f
+
+
 docker Centos容器执行systemctl 命令报错：
 Failed to get D-Bus connection: Operation not permitted
 Docker的设计理念是在容器里面不运行后台服务，容器本身就是宿主机上的一个独立的主进程，也可以间接的理解为就是容器里运行服务的应用进程。
