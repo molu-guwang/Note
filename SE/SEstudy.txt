@@ -11,6 +11,9 @@
 查看僵尸进程
 ps -A -ostat,ppid,pid,cmd |grep -e '^[Zz]'
 
+Centos7 永久修改主机名
+hostnamectl set-hostname [hostname]
+
 安装top ps命令
 apt-get install procps -y
 
@@ -85,3 +88,16 @@ SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 sql_mode = STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
 
 grant all privileges on zabbix.* to zabbix@"%" identified by 'password' with grant option;
+
+查看nginx证书时效
+openssl x509 -in /root/project/ssl/server.crt -noout -dates
+
+删除匹配行及之后几行
+sed '/muahao/,+2d' file
+
+
+
+
+create user thingsboard with password 'gemhone2016';
+CREATE DATABASE thingsboard OWNER thingsboard;
+GRANT ALL PRIVILEGES ON DATABASE thingsboard TO thingsboard;
