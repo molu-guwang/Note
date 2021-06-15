@@ -4,8 +4,19 @@ WORKDIR /home/
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
 && apk update \
 && apk add -U tzdata && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
-&& apk add bash build-base pcre pcre-dev openssl openssl-dev zlib zlib-dev git wget nodejs npm yarn openjdk8 \
-&& yarn \
+&& apk add bash build-base pcre pcre-dev openssl openssl-dev python2 python3 \
+zlib zlib-dev git wget nodejs npm  openjdk8 \
+&& npm config set sass-binary-site http://npm.taobao.org/mirrors/node-sass \
+&& npm config set registry https://registry.npm.taobao.org/ \
+&& npm config get \
+&& npm install -g n &&n 12.16.1 \
+&& npm install -g pm2 && npm install \
+&& npm install -g yarn \
+&& rm -rf /usr/bin/node && ln -s /usr/local/bin/node /usr/bin/
+&& mkdir -p /root/letsy/web
+WORKDIR /root/letsy/web
+RUN yarn && yarn add cross-env
+
 && wget http://nginx.org/download/nginx-1.16.1.tar.gz && tar zxvf nginx-1.16.1.tar.gz \
 && cd nginx-1.16.1 && ./configure --prefix=/usr/share/nginx --sbin-path=/usr/sbin/nginx \
 --modules-path=/usr/lib64/nginx/modules --conf-path=/etc/nginx/nginx.conf \

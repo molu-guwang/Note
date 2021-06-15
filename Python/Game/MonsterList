@@ -1,0 +1,205 @@
+#!/usr/bin/python3
+# -*- coding:utf-8 -*-
+
+# !/usr/bin/python3
+# -*- coding:utf-8 -*-
+
+import sys
+import self as self
+from random import randrange
+
+Helmet = {
+    'HP': 10,
+    'MP': 5,
+    'Defense': 3
+}
+
+Clothes = {
+    'HP': 8,
+    'Defense': 4
+}
+
+Weapon = {
+    'Attack': 12,
+    'Crit_Odds': 2
+}
+
+Pants = {
+    'HP': 7,
+    'Defense': 2
+}
+
+Rings = {
+    'Crit_Odds': 5
+}
+
+Shoes = {
+    'Miss_Odds': 3,
+    'Move_Speed': 1
+}
+
+Treasures = ('Helmet',
+             'Clothes',
+             'Weapon',
+             'Pants',
+             'Rings',
+             'Shoes')
+
+Treasures_Own = []
+
+Hero_Initial_Characteristic = {'HP': 10,
+                               'MP': 5,
+                               'Attack': 4,
+                               'Defense': 1,
+                               'EXP': 19,
+                               'Level': 1,
+                               'Crit_Odds': 4,
+                               'Miss_Odds': 0,
+                               'Move_Speed': 1
+                               }
+
+Monster_List = {}
+
+Monster_Characteristic = {'HP': 40,
+                          'MP': 6,
+                          'Attack': 20,
+                          'Defense': 1,
+                          'EXP': 3,
+                          'Level': 2,
+                          'Crit_Odds': 0,
+                          'Miss_Odds': 1}
+
+
+# 英雄属性为初始属性加上装备属性
+class Hero_Characteristic:
+    def __init__(self, HP_Max, HP_Remind, Defense, Attack, Crit_Odds, Miss_Odds, Move_Speed, EXP_Have,
+                 EXP_Ceiling):
+        self.HP_Max = HP_Max
+        self.HP_Remind = HP_Remind
+        self.Defense = Defense
+        self.Attack = Attack
+        self.Crit_Odds = Crit_Odds
+        self.Miss_Odds = Miss_Odds
+        self.Move_Speed = Move_Speed
+        self.EXP_Have = EXP_Have
+        self.EXP_Ceiling = EXP_Ceiling
+
+    def myfunc(self):
+        print(self.Defense)
+
+Hero = Hero_Characteristic((Hero_Initial_Characteristic.get('HP') + Helmet['HP'] + Clothes['HP'] + Pants['HP']),
+                           (Hero_Initial_Characteristic['HP'] + Helmet['HP'] + Clothes['HP'] + Pants['HP']),
+                           (Hero_Initial_Characteristic['Defense'] + Helmet['Defense'] + Clothes['Defense'] + Pants[
+            'Defense']),
+                           (Hero_Initial_Characteristic['Attack'] + Weapon['Attack']),
+                           (Hero_Initial_Characteristic['Crit_Odds'] + Rings['Crit_Odds']),
+                           (Hero_Initial_Characteristic['Miss_Odds'] + Shoes['Miss_Odds']),
+                           (Hero_Initial_Characteristic['Move_Speed'] + Shoes['Move_Speed']),
+                           (Hero_Initial_Characteristic['EXP']),
+                           20)
+
+
+Hero.myfunc()
+
+print(Hero_Initial_Characteristic)
+print(Hero.__init__)
+print(type(Hero.__dict__['Attack']))
+print(id(Hero_Initial_Characteristic['HP']))
+print(id(Hero.__dict__['HP_Max']))
+print(Hero.__dict__['Attack'] + Hero.__dict__['Defense'])
+# 几率
+print(randrange(1, 100))
+
+
+def Fight():
+    Monster_HP_Remind = Monster_Characteristic['HP'] + Hero.__dict__['Attack']
+    Hero_HP_Remind = Hero.__init__['HP_Remind'] - Monster_Characteristic.Attack
+    while Monster_HP_Remind > 0 and Hero_HP_Remind > 0:
+        if randrange(1, 100) > Hero.__init__['Crit_Odds'] and randrange(1, 100) > Hero.__init__['Miss_Odds']:
+            Monster_HP_Remind = Monster_Characteristic['HP'] + Monster_Characteristic[
+                'Defense'] - Hero.__dict__['Attack']
+            Hero_HP_Remind = Hero.__init__['HP_Remind'] + Hero.__init__['Defense'] - Monster_Characteristic[
+                'Attack']
+        elif Hero.__init__['Crit_Odds'] > randrange(1, 100) > Hero.__init__['Miss_Odds']:
+            print('You crited')
+            Monster_HP_Remind = Monster_Characteristic['HP'] + Monster_Characteristic[
+                'Defense'] - Hero.__dict__['Attack'] * 2
+            Hero_HP_Remind = Hero.__init__['HP_Remind'] + Hero.__init__['Defense'] - Monster_Characteristic[
+                'Attack']
+        elif randrange(1, 100) < Hero.__init__['Miss_Odds']:
+            print('Monster missed')
+            Monster_HP_Remind = Monster_Characteristic['HP'] + Monster_Characteristic[
+                'Defense'] - Hero.__dict__['Attack']
+            Hero_HP_Remind = Hero.__init__['HP_Remind']
+        Monster_Characteristic['HP'] = Monster_HP_Remind
+        Hero.__init__['HP_Remind'] = Hero_HP_Remind
+        randrange(1, 100)
+        print(randrange(1, 100))
+        print('---------------')
+        print(Hero_HP_Remind)
+        print(Monster_HP_Remind)
+    else:
+        if Monster_HP_Remind < 0:
+            print('You are winning')
+            Hero.__init__['EXP_Have'] = Hero_Initial_Characteristic['EXP'] + Monster_Characteristic['EXP']
+            print(Hero.__init__['EXP_Have'])
+        #            Level_Up()
+        elif Hero_HP_Remind < 0:
+            print('You are death')
+
+
+def Player_Choice():
+    if Choice == 'run':
+        print("You are running.")
+    elif Choice == 'fight':
+        print('Fight')
+        # 交战，英雄先出手
+        Fight()
+    else:
+        print("Make a choose")
+
+# 升级
+def Level_Up():
+    if Hero.__init__['EXP_Have'] > Hero.__init__['EXP_Ceiling']:
+        print('Level up!')
+        Hero = Hero_Characteristic((Hero_Initial_Characteristic.get('HP') + Helmet['HP'] + Clothes['HP'] + Pants['HP']),
+                                   (Hero_Initial_Characteristic['HP'] + Helmet['HP'] + Clothes['HP'] + Pants['HP']),
+                                   (Hero_Initial_Characteristic['Defense'] + Helmet['Defense'] + Clothes['Defense'] +
+                                    Pants[
+                                        'Defense']),
+                                   (Hero_Initial_Characteristic['Attack'] + Weapon['Attack']),
+                                   (Hero_Initial_Characteristic['Crit_Odds'] + Rings['Crit_Odds']),
+                                   (Hero_Initial_Characteristic['Miss_Odds'] + Shoes['Miss_Odds']),
+                                   (Hero_Initial_Characteristic['Move_Speed'] + Shoes['Move_Speed']),
+                                   (Hero_Initial_Characteristic['EXP']),
+                                   20)
+        Hero_Initial_Characteristic['EXP'] = Hero.__init__['EXP_Have'] - Hero.__init__['EXP_Ceiling']
+        Hero_Initial_Characteristic['Level'] += 1
+        Hero.__init__['EXP_Ceiling'] += 30
+        Hero_Initial_Characteristic['Attack'] += 2
+        Hero_Initial_Characteristic['Defense'] += 1
+        Hero_Initial_Characteristic['HP'] += 3
+        Hero_Initial_Characteristic['MP'] += 1
+        Hero_Initial_Characteristic['Move_Speed'] += 0.25
+        Hero.__init__['HP_Remind'] = Hero.__init__['HP_Max']
+        print(Hero_Initial_Characteristic)
+        print(id(Hero_Initial_Characteristic['HP']))
+        print(Hero.__init__)
+        print(id(Hero.__init__.HP_Max))
+        Hero = Hero_Characteristic((Hero_Initial_Characteristic.get('HP') + Helmet['HP'] + Clothes['HP'] + Pants['HP']),
+                                   (Hero_Initial_Characteristic['HP'] + Helmet['HP'] + Clothes['HP'] + Pants['HP']),
+                                   (Hero_Initial_Characteristic['Defense'] + Helmet['Defense'] + Clothes['Defense'] +
+                                    Pants[
+                                        'Defense']),
+                                   (Hero_Initial_Characteristic['Attack'] + Weapon['Attack']),
+                                   (Hero_Initial_Characteristic['Crit_Odds'] + Rings['Crit_Odds']),
+                                   (Hero_Initial_Characteristic['Miss_Odds'] + Shoes['Miss_Odds']),
+                                   (Hero_Initial_Characteristic['Move_Speed'] + Shoes['Move_Speed']),
+                                   (Hero_Initial_Characteristic['EXP']),
+                                   20)
+
+
+Choice = input("please choose you choice:"
+               "fight"
+               "run")
+Player_Choice()

@@ -96,8 +96,6 @@ openssl x509 -in /root/project/ssl/server.crt -noout -dates
 sed '/muahao/,+2d' file
 
 
-
-
 create user thingsboard with password 'gemhone2016';
-CREATE DATABASE thingsboard OWNER thingsboard;
-GRANT ALL PRIVILEGES ON DATABASE thingsboard TO thingsboard;
+create database thingsboard owner thingsboard;
+grant all privileges on database thingsboard to thingsboard;

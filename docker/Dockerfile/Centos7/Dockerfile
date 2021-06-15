@@ -13,12 +13,12 @@ RUN wget https://mirrors.tuna.tsinghua.edu.cn/centos/7/os/x86_64/Packages/java-1
 && yum install java-1.8.0-openjdk-1.8.0.262.b10-1.el7.x86_64.rpm -y
 # Install node
 RUN curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo |  tee /etc/yum.repos.d/yarn.repo\
-&& yum install yarn \
+&& yum install yarn -y \
 && npm config set sass-binary-site http://npm.taobao.org/mirrors/node-sass \
 && npm config set registry https://registry.npm.taobao.org/ \
 && npm config get \
 && npm install -g n &&n 12.16.1 \
-&& npm install -g pm2 && npm install \
+&& npm install -g pm2 \
 && npm install -g yarn \
 && rm -rf /usr/bin/node && ln -s /usr/local/bin/node /usr/bin/
 

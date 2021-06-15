@@ -82,6 +82,7 @@ systemctl restart docker
 systemctl stop docker
 mkdir -p /home/docker/lib
 mkdir -p /etc/systemd/system/docker.service.d/
+rsync -avz /var/lib/docker /home/docker/lib
 echo " [Service]
 ExecStart=
 ExecStart=/usr/bin/dockerd  --graph=/home/docker/lib/docker " >> /etc/systemd/system/docker.service.d/devicemapper.conf
@@ -140,6 +141,9 @@ docker history --no-trunc docker.io/images:tag
 
 重命名镜像
 docker tag [镜像id] [新镜像名称]:[新镜像标签]
+
+重命名容器
+ docker rename [old_containername] [new_containername]
 
 查看docker 网络
 docker network ls

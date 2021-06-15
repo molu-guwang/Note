@@ -12,7 +12,6 @@ yum install docker-ce docker-ce-cli containerd.io
 systemctl start docker
 echo '{
 
-    "dns":["202.98.96.68"],
     "registry-mirrors":["https://almtd3fa.mirror.aliyuncs.com"],
     "insecure-registries": ["121.36.168.105:10443"]
 

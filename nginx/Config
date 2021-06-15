@@ -31,6 +31,7 @@ Nginx：
 		Nginx的基本架构：
 			master/worker
 				一个master进程，可生成一个或多个worker进程；
+				work数量由cpu核心限制。
 				事件驱动：epoll(Linux), kqueue（FreeBSD）, /dev/poll(Solaris)
 					消息通知：select, poll, rt signals
 				支持sendfile,  sendfile64
@@ -554,3 +555,70 @@ Nginx(2)
 				gzip_comp_level 6;
 				gzip_disable msie6;
 				gzip_min_length 2;
+
+
+
+
+        文件上传配置：
+        http {
+                log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                $status $body_bytes_sent "$http_referer" '
+                '"$http_user_agent" "$http_x_forwarded_for"';
+
+                access_log  /var/log/nginx/access.log  main;
+
+                sendfile            on;
+                tcp_nopush          on;    ##套接字选项，开启防止网络阻塞（配合sendfile使用）
+                tcp_nodelay         on;    ##启用长连接马上响应，提高性能（配合sendfile使用）
+                autoindex on;# 显示目录
+                autoindex_exact_size on;# 显示文件大小
+                autoindex_localtime on;# 显示文件时间
+                keepalive_timeout   600;
+
+                types_hash_max_size 2048;
+                client_max_body_size 111205m;
+
+                include             /etc/nginx/mime.types;
+                default_type        application/octet-stream;
+                sendfile            on;    ##允许sendfile方式传输文件，默认为off，可以在http块，server块，location块
+
+                location /tenant/resource  {
+                    proxy_pass http://192.168.250.79:7082;
+                    proxy_buffering off;    ##关闭代理缓存（默认是将客户端文件写在内存里）
+                    client_max_body_size 111024m;     ##允许客户端请求的最大单文件字节数
+                    client_header_timeout    2000;     ##读取客户端请求标头的超时时长
+                    client_body_timeout      2000;     ##读取客户端请求主体的超时时长
+                    client_body_buffer_size 128k;     ##缓冲区代理缓冲用户端请求的最大字节数（此值不能设置过大）
+                    proxy_connect_timeout 90;     ##nginx跟后端服务器连接超时时间(代理连接超时)
+                    proxy_send_timeout 90;     ##后端服务器数据回传时间(代理发送超时)
+                    proxy_read_timeout 90;     ##连接成功后，后端服务器响应时间(代理接收超时)
+                    proxy_buffer_size 4k;     ##设置代理服务器（nginx）保存用户头信息的缓冲区大小
+                    proxy_buffers 4 32k;     ##proxy_buffers缓冲区，网页平均在32k以下的设置
+                    proxy_busy_buffers_size 64k;     ##高负荷下缓冲大小（proxy_buffers*2）
+                    proxy_temp_file_write_size 64k;     ##设定缓存文件夹大小，大于这个值，将从upstream服务器传
+                    send_timeout                600;     ##将响应传输到客户端的超时时长
+                    fastcgi_connect_timeout 75;    ##fastcgi链接超时时间
+                    fastcgi_send_timeout 4000;    ##fsatcgi传输超时时间
+                    fastcgi_read_timeout 4000;     ##fsatcgi读超时时间
+                    client_body_temp_path           /home/ccr/client_body_temp 1 2;  ## 请求body临时目录
+                    proxy_temp_path                 /home/ccr/proxy_temp 1 2;    ## 代理服务器接受数据临时目录
+                    fastcgi_temp_path               /home/ccr/fastcgi_temp 1 2; ## FastCGI服务器接收临时目录
+                    uwsgi_temp_path                 /home/ccr/uwsgi_temp 1 2; ## uwsgi 服务器接收临时目录
+                    scgi_temp_path                  /home/ccr/scgi_temp 1 2; ##scgi服务器接收临时目录
+                }
+            }
+
+        前端跨域配置：
+
+    	location / {
+	        add_header Access-Control-Allow-Origin *;
+            add_header Access-Control-Allow-Methods 'GET, POST, OPTIONS';
+            add_header Access-Control-Allow-Headers 'DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization';
+	    }
+
+	    location ~* .*\.gz$ {
+	        add_header Access-Control-Allow-Origin *;
+            add_header Access-Control-Allow-Methods 'GET, POST, OPTIONS';
+            add_header Access-Control-Allow-Headers 'DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization';
+	        add_header Content-Encoding gzip;
+        }
