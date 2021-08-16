@@ -1,0 +1,51 @@
+命令行操作：
+杀死进程
+taskkill /F /IM 进程名
+
+
+后台运行进程：
+powershell执行后台运行
+
+vbs：
+set ws=WScript.CreateObject("WScript.Shell")
+ws.Run "D:\bim_web\letsbimserver\startserver.bat",0
+
+startserver.bat
+taskkill /F /IM  bim-server.exe
+TIMEOUT /T 10
+powershell Start-Process -WindowStyle hidden -FilePath  D:\bim_web\letsbimserver\bim-server.exe
+
+
+
+
+磁盘分区
+cmd:
+diskpart
+查看物理磁盘
+list disk
+选择物理磁盘
+select disk 0
+查看磁盘分区
+list partition
+选择物理分区
+select partition 3
+删除分区并覆盖
+delete partition override
+
+
+远程拷贝
+cp.bat
+
+@echo off
+net use \\192.168.16.95 /user:"Administrator" P@ssw0rdA
+        IP                      用户              密码
+xcopy C:\Users\Administrator\AppData\Local\Jenkins\.jenkins\workspace\bimweb\revit_ifc\BimIfcExport \\192.168.16.95\Users\bimweb\revit_ifc\BimIfcExport  /S/H/C/Y
+pause
+
+
+
+
+windows打开方式找不到安装的应用
+点击“开始”—“运行”，输入“regedit”打开注册表，在“HKEY_CLASSES_ROOT\Applications\”中找到无法添加的程序( 比如kmplayer )
+看一下它的“\shell\open\command”数据里的路径是否错误，如果错误，便将其更正或删除。
+完成上述步骤以后，就可以将该程序添加到右键的“打开方式”中了。

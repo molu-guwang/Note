@@ -160,6 +160,8 @@ docker network rm mynet2
 yum install -y bridge-utils
 brctl show
 
+docker run -itd --name redis --sysctl net.core.somaxconn=1024 -e TIME_ZONE="Asia/Shanghai" -e TZ="Asia/Shanghai"   -p 6379:6379 redis:5.0.5
+
 docker run -itd --name redis -p 6379:6379 redis:5.0  --requirepass "Gemhone_2018"
 
 docker run -itd --nat bridge --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=Gemhone_2018 mysql:5.6.36
@@ -316,7 +318,7 @@ docker build [选项] 路径
 
 
 
-/usr/bin/docker-current: Error response from daemon: error creating overlay mount to /var/lib/docker/overlay2/d59b250eebf427a7bbd36dd1a834a969? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ?196589187a77720e0148985ddae6ce13-init/merged: invalid argument.
+/usr/bin/docker-current: Error response from daemon: error creating overlay mount to /var/lib/docker/overlay2/d59b250148985ddae6ce13-init/merged: invalid argument.
 See '/usr/bin/docker-current run --help'.
 
 因为image用的overlay2文件系统，而系统默认只能识别overlay文件系统
