@@ -1,3 +1,18 @@
+1、Windows平台
+在windows命令行窗体下运行：
+1.查看全部的port占用情况
+netstat -ano
+
+2.查看指定port的占用情况
+netstat -aon|findstr "9050"
+
+3.查看PID相应的进程
+tasklist|findstr "2016"
+
+4.结束该进程
+
+taskkill /f /t /im tor.exe
+
 命令行操作：
 杀死进程
 taskkill /F /IM 进程名

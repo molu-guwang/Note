@@ -70,7 +70,7 @@ echo '{
   ]
 }
 
-
+#debian 源
 echo "deb http://mirrors.163.com/debian/ jessie main non-free contrib
 deb http://mirrors.163.com/debian/ jessie-proposed-updates main non-free contrib
 deb-src http://mirrors.163.com/debian/ jessie main non-free contrib

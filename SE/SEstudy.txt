@@ -99,3 +99,5 @@ vi /etc/vim/vimrc.tiny
 
 修改完成即时生效
 
+  查看进程的运行时间
+  ps -p PID -o etime

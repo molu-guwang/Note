@@ -65,6 +65,9 @@ firewall-cmd --add-forward-port=port=80:proto=tcp:toaddr=192.168.0.1:toport=8080
 firewall-cmd --reload
 
 
+拒绝来自192.168.2.0/24网段的连接
+firewall-cmd --add-rich-rule="rule family=ipv4 source address=192.168.2.0/24 reject"
+
 查看活动的区域
 firewall-cmd --get-active-zones
 
@@ -74,3 +77,9 @@ firewall-cmd --runtime-to-permanent
 
 查看开放的端口
 firewall-cmd --list-all
+
+
+firewalld的富规则可以定义更复杂强大的防火墙规则
+
+语法:
+fiewall-cmd [--permanent] --add-rich-rule="rich rule"
