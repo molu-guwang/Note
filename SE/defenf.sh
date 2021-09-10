@@ -28,7 +28,7 @@ FIREWALL_CONF=/etc/firewalld/zones/public.xml
 	if
 		[ $? -ne 0 ];then
 ##判断 firewalld 配置文件里面是否存在已拒绝的 ip，如何不存在就不再添加相应条目
-		firewall-cmd --permanent --zone=public  --add-rich-rule="rule family='ipv4' source address=$i/32 protocol=tcp drop"  >/dev/null 2>&1
+		firewall-cmd --permanent --zone=public  --add-rich-rule="rule family=ipv4 source address=$i/32 protocol=tcp drop"  >/dev/null 2>&1
 		echo `date +"%Y-%m-%d %H:%M:%S $i 此ip增加到防火墙拉黑"` >> /root/drop_ip.txt
 	fi
     done
