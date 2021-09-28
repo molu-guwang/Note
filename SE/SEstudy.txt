@@ -17,7 +17,7 @@ hostnamectl set-hostname [hostname]
 安装top ps命令
 apt-get install procps -y
 
-如何查看Linux系统每个ip的连接数
+查看Linux系统每个ip的连接数
 netstat -n | awk '/^tcp/ {print $5}' | awk -F: '{print $1}' | sort | uniq -c | sort -rn
 
 开启路由转发及设置虚拟内存
@@ -69,6 +69,8 @@ fc-list :lang=zh
 防火墙开放不连续端口
 iptables -I INPUT  -m state --state NEW -p tcp -m multiport --dports 3306,6379 -j ACCEPT
 
+mysql创建数据库并设定字符集
+create database smartfactory default charset utf8mb4 collate utf8mb4_general_ci;
 
 mysql赋权
 grant all on *.* to root@'%' identified by 'passwd' with grant option;
