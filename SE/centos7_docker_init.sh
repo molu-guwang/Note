@@ -12,8 +12,7 @@ yum install docker-ce docker-ce-cli containerd.io
 systemctl start docker
 echo '{
 
-    "registry-mirrors":["https://almtd3fa.mirror.aliyuncs.com"],
-    "insecure-registries": ["121.36.168.105:10443"]
+    "registry-mirrors":["https://almtd3fa.mirror.aliyuncs.com"]
 
 }' >> /etc/docker/daemon.json
 systemctl stop docker
