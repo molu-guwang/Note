@@ -82,6 +82,15 @@ deb-src http://mirrors.163.com/debian/ jessie-proposed-updates main non-free con
 systemctl restart docker
 
 
+启动失败：
+ Active: failed (Result: start-limit)
+
+ 修改
+/etc/docker/daemon.json
+为/etc/docker/daemon.conf
+
+
+
 修改docker存储目录
 systemctl stop docker
 mkdir -p /home/docker/lib
@@ -136,6 +145,11 @@ save更完整，export会丢失镜像历史，无法做层回滚。
 save文件对比export文件会更大
 
 
+运行导入的镜像必须带command，否则启动会报错：Error response from daemon: No command specified
+具体的command需要在导出容器的时候通过docker ps 查看到
+看完整的command的内容： docker ps  --no-trunc
+docker-compose创建的镜像不建议导出，会获取不到docker-compose.yaml里面配置的参数。
+docker-compose镜像迁移可尝试在注意目录下写入的配置文件下，打包docker-compose.yaml下的整个目录，在新的机器上run。
 docker使用
 
 查看images layer
@@ -148,6 +162,10 @@ docker tag [镜像id] [新镜像名称]:[新镜像标签]
 
 重命名容器
  docker rename [old_containername] [new_containername]
+
+
+在运行docker容器时可以加如下参数来保证每次docker服务重启后容器也自动重启：--restart=always
+如果已经启动了则可以使用如下命令：docker update --restart=always <CONTAINER ID>
 
 查看docker 网络
 docker network ls
