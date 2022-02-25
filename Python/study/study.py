@@ -54,3 +54,4 @@ print(Hero.__dict__['defense'])
 Hero = Person(10, a_dic['B1'] + 2)
 Hero.myfunc()
 print(type(Hero.__dict__['defense']))
+
