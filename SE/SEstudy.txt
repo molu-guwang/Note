@@ -108,3 +108,26 @@ vi /etc/vim/vimrc.tiny
 
   查看进程的运行时间
   ps -p PID -o etime
+
+
+
+  set GLOBAL max_connections=1000;
+ show VARIABLES like
+ 'max_connections';
+
+
+
+ ssh互信
+
+
+ --requirepass "WdRedis6379"
+
+
+ sql_mode = STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+
+ 生成ssh-key：
+ ssh-keygen -m PEM -t rsa -b 4096
+
+
+ 查看内存占用前10的进程：
+  ps aux | head -1;ps aux | sort -rn -k +4 | head

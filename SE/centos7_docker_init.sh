@@ -5,7 +5,7 @@ echo 'net.ipv4.ip_forward = 1' >> /etc/sysctl.conf
 sysctl -p
 setenforce 0
 sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
-curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+curl  https://get.docker.com | bash -s docker --mirror Aliyun
 yum install -y yum-utils   device-mapper-persistent-data   lvm2
 yum-config-manager     --add-repo     http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
 yum install docker-ce docker-ce-cli containerd.io

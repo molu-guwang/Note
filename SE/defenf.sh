@@ -21,10 +21,10 @@ FIREWALL_CONF=/etc/firewalld/zones/public.xml
 #        fi
 #    fi
 ##把匹配到的ip加入firewalld防火墙
-     for i in `echo $IP_ADDR`
+     for deny_ip in `echo $IP_ADDR`
      do
 ##查看 firewalld 配置文件是否含有提取的 IP 信息
-     cat $FIREWALL_CONF |grep $i >/dev/null 2>&1
+     cat $FIREWALL_CONF |grep $deny_ip >/dev/null 2>&1
 	if
 		[ $? -ne 0 ];then
 ##判断 firewalld 配置文件里面是否存在已拒绝的 ip，如何不存在就不再添加相应条目
@@ -34,3 +34,5 @@ FIREWALL_CONF=/etc/firewalld/zones/public.xml
     done
 #最后重启 firewalld 生效
 firewall-cmd --reload  >/dev/null 2>&1
+
+

@@ -1,8 +1,13 @@
 安装即可
+docker安装默认禁用--web.enable-lifecycle
 
 被监控端需要安装exporter来提供数据
 一般用node_exporter
-添加主机之后需要更新服务端配置文件
+node_exporter 无配置文件
+node_exporter 开放端口后，直接启动即可。默认9100
+指定端口和路径
+node_exporter --web.listen-address=":9222"  --web.telemetry-path="/node_metrics"
+添加主机之后需要更新Prometheus服务端配置文件
 
 如果不想每次修改配置文件后都重启prometheus，可改用重载配置的方式。
 重载配置需要在prometheus的启动参数中追加--web.enable-lifecycle
