@@ -1,8 +1,16 @@
 #!/usr/bin/python3
 
-import self as self
-import sys
-import re
+
+
+# %s 占位字符
+# %d 占位整数
+
+# python 3.6之后，新加f-string类型格式化文本
+# eg：
+# name = input("名字：")
+# age = input("年龄: ")
+# string = f"名字：{name},年龄：{age}"
+# print(string)
 
 '''
 函数	描述
@@ -91,6 +99,12 @@ Person1.Person2()
 print(p2.name)
 print(p2.age)
 '''
+#
+# lista = ["A","B","C"]
+# listb = lista.extend(["D","F"])
+# print(lista)
+# print(listb)
+
 
 '''
 a_dic = {'A1': 1, 'B1': 2}
@@ -126,7 +140,7 @@ print(type(Hero.__dict__['defense']))
 '''
 
 
-
+"""
 Helmet = {
     'HP': 10,
     'MP': 5,
@@ -218,3 +232,43 @@ Hero = Hero_Characteristic((Hero_Initial_Characteristic.get('HP') + Helmet['HP']
 print(Hero_Initial_Characteristic['HP'])
 Hero.myfunc()
 print(Hero.__dict__['HP_Max'])
+"""
+
+
+# word = "   我的天空  "
+# print(word)
+# word2 = word.strip()
+# print(word2)
+# #strip  去掉首位的空格
+# word3 = word2.replace("我","你")
+# print(word3)
+# word4 = word3.split("你")
+# print(word4) #split 切割,切割之后的内容为列表及元素
+# word5 = word3.find("你")
+# word6 = word3.find("我")
+# print(word5)
+# print(word6)
+# word_another = "妮妮你妮妮"
+# word_another2 = word_another.find("妮")
+# print(word_another2)
+# #find 结果数字表示在其中第一次出现的位置,-1表示不存在
+# #index 和find类似,但是不存在会直接报错
+# print("妮" in word_another)
+# print("泥" in word_another)
+# #in  /   not in 返回布尔值
+
+list = ["a","b","c","b","b"]
+for item in list:
+    print(item)
+    if item == "b":
+        list.remove(item)
+print(list)
+
+list2 = list
+for item2 in list2:
+    print(item2)
+    if item2 == "b":
+        list2.remove(item2)
+print(list2)
+
+

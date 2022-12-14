@@ -119,9 +119,9 @@ vi /etc/vim/vimrc.tiny
 
  ssh互信
 
-
+JumpServer'sRedis1
  --requirepass "WdRedis6379"
-
+-e MYSQL_ROOT_PASSWORD=JumpServer'sMysql1
 
  sql_mode = STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
 
@@ -131,3 +131,38 @@ vi /etc/vim/vimrc.tiny
 
  查看内存占用前10的进程：
   ps aux | head -1;ps aux | sort -rn -k +4 | head
+
+
+  Centos8  yum源：
+  https://mirrors.aliyun.com/centos/8-stream/BaseOS/
+  由/centos/8/ 变为   /centos/8-stream/B
+
+
+
+  create user wecode identified by 'wecode@2022';
+
+grant all privileges on *.* to 'wecode'@'%' identified by 'wecode' with grant option;
+
+数据库连接2059错误：
+由于mysql8.0 加密方式变更
+use mysql;
+ALTER USER ‘user’@‘%’ IDENTIFIED WITH mysql_native_password BY ‘passwd’;
+
+
+set global innodb_file_format = BARRACUDA;
+SET GLOBAL innodb_large_prefix = ON;
+
+
+CREATE DATABASE `wecode_cloud_base_v2` CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci';
+
+
+bash /home/wecode/deployJar.sh '-t${JAR_FILE}' '-a${RUN_JAR_PARAMS}' '-f${LOG_FILE}'
+
+
+
+
+ 查看磁盘IO读写进程
+ 安装sysstat  iotop
+ iostat -x 1 10
+ iotop -oP
+ pidstat -d 1

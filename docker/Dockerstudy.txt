@@ -134,6 +134,7 @@ docker export 58dbc2162141 > tomcat.tar
 docker import - new_tomcat_server < tomcat.tar
                     新镜像名          导入文件名及路径
 
+配合docker commit使用
 docker导出本地镜像
 docker save busybox-1 > /home/save.tar
             镜像名         导出文件名及路径
@@ -148,9 +149,15 @@ save文件对比export文件会更大
 运行导入的镜像必须带command，否则启动会报错：Error response from daemon: No command specified
 具体的command需要在导出容器的时候通过docker ps 查看到
 看完整的command的内容： docker ps  --no-trunc
+
 docker-compose创建的镜像不建议导出，会获取不到docker-compose.yaml里面配置的参数。
 docker-compose镜像迁移可尝试在注意目录下写入的配置文件下，打包docker-compose.yaml下的整个目录，在新的机器上run。
 docker使用
+
+仅使用所需的内存来运行容器。 始终使用'--memory'参数运行容器。 应该按以下方式启动容器：
+
+docker run --interactive --tty --memory 256m <Container Image Name or ID>
+
 
 查看images layer
 docker history docker.io/images:tag
@@ -258,6 +265,8 @@ root@xxxxx:/opt/webapp#cat /etc/hosts
 /etc/profile
 /{user}/.bashrc
 再source即可生效
+
+docker update  参数 容器ID
 
 docker打包正在运行的镜像
 docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
