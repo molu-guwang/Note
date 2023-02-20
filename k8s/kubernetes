@@ -1,3 +1,5 @@
+namespace
+user 内核版本大于等于3.8
 
 pod
 隔离

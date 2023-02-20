@@ -5,6 +5,8 @@ import sys
 
 from random import randrange
 
+
+#equipment attribute list
 Helmet = {
     'HP': 10,
     'MP': 5,
@@ -35,6 +37,8 @@ Shoes = {
     'Move_Speed': 1
 }
 
+
+#equipment
 Treasures = ('Helmet',
              'Clothes',
              'Weapon',
@@ -44,6 +48,7 @@ Treasures = ('Helmet',
 
 Treasures_Own = []
 
+#Hero Characteristic
 Hero_Initial_Characteristic = {'HP': 10,
                                'MP': 5,
                                'Attack': 4,
@@ -57,6 +62,7 @@ Hero_Initial_Characteristic = {'HP': 10,
 
 Monster_List = {}
 
+#
 Monster_Characteristic = {'HP': 40,
                           'MP': 6,
                           'Attack': 20,

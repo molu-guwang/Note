@@ -9,7 +9,7 @@ zlib zlib-dev git wget nodejs npm  openjdk8 \
 && npm config set sass-binary-site http://npm.taobao.org/mirrors/node-sass \
 && npm config set registry https://registry.npm.taobao.org/ \
 && npm config get \
-&& npm install -g n &&n 12.16.1 \
+&& npm install -g n &&n 15.5.0 \
 && npm install -g pm2 && npm install \
 && npm install -g yarn \
 && rm -rf /usr/bin/node && ln -s /usr/local/bin/node /usr/bin/

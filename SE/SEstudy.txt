@@ -1,4 +1,9 @@
- 多行注释：
+内网地址池
+（1）10.0.0.0 到 10.255.255.255
+（2）172.16.0.0 到172.31.255.255
+（3）192.168.0.0 到192.168.255.255
+
+多行注释：
 1. 进入命令行模式，按ctrl + v进入 visual block模式，然后按j, 或者k选中多行，把需要注释的行标记起来
 2. 按大写字母I，再插入注释符，例如//
 3. 按esc键就会全部注释了
@@ -103,3 +108,61 @@ vi /etc/vim/vimrc.tiny
 
   查看进程的运行时间
   ps -p PID -o etime
+
+
+
+  set GLOBAL max_connections=1000;
+ show VARIABLES like
+ 'max_connections';
+
+
+
+ ssh互信
+
+JumpServer'sRedis1
+ --requirepass "WdRedis6379"
+-e MYSQL_ROOT_PASSWORD=JumpServer'sMysql1
+
+ sql_mode = STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+
+ 生成ssh-key：
+ ssh-keygen -m PEM -t rsa -b 4096
+
+
+ 查看内存占用前10的进程：
+  ps aux | head -1;ps aux | sort -rn -k +4 | head
+
+
+  Centos8  yum源：
+  https://mirrors.aliyun.com/centos/8-stream/BaseOS/
+  由/centos/8/ 变为   /centos/8-stream/B
+
+
+
+  create user wecode identified by 'wecode@2022';
+
+grant all privileges on *.* to 'wecode'@'%' identified by 'wecode' with grant option;
+
+数据库连接2059错误：
+由于mysql8.0 加密方式变更
+use mysql;
+ALTER USER ‘user’@‘%’ IDENTIFIED WITH mysql_native_password BY ‘passwd’;
+
+
+set global innodb_file_format = BARRACUDA;
+SET GLOBAL innodb_large_prefix = ON;
+
+
+CREATE DATABASE `wecode_cloud_base_v2` CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci';
+
+
+bash /home/wecode/deployJar.sh '-t${JAR_FILE}' '-a${RUN_JAR_PARAMS}' '-f${LOG_FILE}'
+
+
+
+
+ 查看磁盘IO读写进程
+ 安装sysstat  iotop
+ iostat -x 1 10
+ iotop -oP
+ pidstat -d 1

@@ -1,3 +1,7 @@
+依托于以下三技术：
+cgroups、namespace、UFS
+
+
 docker 网络
 
 Host 模式介绍：
@@ -130,6 +134,7 @@ docker export 58dbc2162141 > tomcat.tar
 docker import - new_tomcat_server < tomcat.tar
                     新镜像名          导入文件名及路径
 
+配合docker commit使用
 docker导出本地镜像
 docker save busybox-1 > /home/save.tar
             镜像名         导出文件名及路径
@@ -144,9 +149,15 @@ save文件对比export文件会更大
 运行导入的镜像必须带command，否则启动会报错：Error response from daemon: No command specified
 具体的command需要在导出容器的时候通过docker ps 查看到
 看完整的command的内容： docker ps  --no-trunc
+
 docker-compose创建的镜像不建议导出，会获取不到docker-compose.yaml里面配置的参数。
 docker-compose镜像迁移可尝试在注意目录下写入的配置文件下，打包docker-compose.yaml下的整个目录，在新的机器上run。
 docker使用
+
+仅使用所需的内存来运行容器。 始终使用'--memory'参数运行容器。 应该按以下方式启动容器：
+
+docker run --interactive --tty --memory 256m <Container Image Name or ID>
+
 
 查看images layer
 docker history docker.io/images:tag
@@ -199,10 +210,16 @@ docker run -itd -p 8090:8080  -v /home/jenkins/jenkins_data/:/home/jenkins/jenki
 -t #给容器重新分配一个伪终端，添加tag，指定新镜像的用户信息，常与-i参数同时使用
 –name #给容器指定一个名称  容器名唯一
 -b 指定容器挂载网桥
+--shm-size 指定共享内存，默认64M
 -icc=true|false 是否支持容器间通信，默认支持
 -iptables=true|false 是否允许docker添加iptables规则
 --dns=xxx 指定容器DNS服务器，默认主机/etc/resolv.conf 里的配置
 成都电信dns 202.98.96.68
+
+修改已有镜像的共享内存大小：
+第一步：docker ps  查看容器id
+第二步：cd /进入主目录，通过cd var/lib/containers/容器id开头的一串数字 进入容器所在的配置目录
+第三步：vim hostconfig.json 和config.v2.json vim模式更改shm
 
 docker run -it -v $(pwd)/host-dava:/container-data alpine sh
 
@@ -210,7 +227,7 @@ docker exec -it containername /bin/bash -c 'command'
 宿主机执行docker容器命令，如涉及环境变量。添加export 环境变量
 -u 指定执行命令的用户
 
-
+删除标签为none的镜像
 docker images | grep none |tr -s ' ' |cut -d ' ' -f 3 |xargs docker rmi  -f
 
 
@@ -248,6 +265,8 @@ root@xxxxx:/opt/webapp#cat /etc/hosts
 /etc/profile
 /{user}/.bashrc
 再source即可生效
+
+docker update  参数 容器ID
 
 docker打包正在运行的镜像
 docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
