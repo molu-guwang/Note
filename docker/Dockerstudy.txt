@@ -216,12 +216,12 @@ docker run -itd -p 8090:8080  -v /home/jenkins/jenkins_data/:/home/jenkins/jenki
 --dns=xxx 指定容器DNS服务器，默认主机/etc/resolv.conf 里的配置
 成都电信dns 202.98.96.68
 
-修改已有镜像的共享内存大小：
-第一步：docker ps  查看容器id
+修改已有镜像的配置：
+第一步：docker ps  查看容器id ；然后停止容器与docker服务。
 第二步：cd /进入主目录，通过cd var/lib/containers/容器id开头的一串数字 进入容器所在的配置目录
 第三步：vim hostconfig.json 和config.v2.json vim模式更改shm
 
-docker run -it -v $(pwd)/host-dava:/container-data alpine sh
+docker run -it -v $(pwd)/host-data:/container-data alpine sh
 
 docker exec -it containername /bin/bash -c 'command'
 宿主机执行docker容器命令，如涉及环境变量。添加export 环境变量
