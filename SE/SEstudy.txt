@@ -167,3 +167,6 @@ bash /home/wecode/deployJar.sh '-t${JAR_FILE}' '-a${RUN_JAR_PARAMS}' '-f${LOG_FI
 
 
 pgsql数据库添加只读用户：
+
+
+cockpit

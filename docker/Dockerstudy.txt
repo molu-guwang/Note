@@ -196,8 +196,8 @@ docker run -itd --name redis -p 6379:6379 redis:5.0  --requirepass "Gemhone_2018
 docker run -itd --nat bridge --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=Gemhone_2018 mysql:5.6.36
 					以什么网络启动	    容器名  主机端口:容器端口								基础镜像及标签
 
-docker run -itd -p 8090:8080  -v /home/jenkins/jenkins_data/:/home/jenkins/jenkins_data/ tomcat_test
-									主机目录					挂载于容器目录
+docker run -itd --name jenkins_name -p 8090:8080   -v /home/jenkins/jenkins_data/:/home/jenkins/jenkins_data/ jenkins:version
+							容器名	 宿主机端口：容器内部端口               主机目录		挂载于容器目录                     镜像版本
 可以使用-v来创建或者指定一个数据卷/单个文件挂载到容器里，一次run可挂载多个数据卷
 类似mount 权限默认读写，只读用:ro指定
 挂载数据卷容器使用--volumes-from

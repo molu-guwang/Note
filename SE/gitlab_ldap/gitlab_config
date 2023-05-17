@@ -1,0 +1,24 @@
+修改 /etc/gitlab/gitlab.rb
+
+gitlab_rails['ldap_enabled'] = true
+gitlab_rails['prevent_ldap_sign_in'] = false
+
+gitlab_rails['ldap_servers'] = YAML.load <<-'EOS'
+   main: # 'main' is the GitLab 'provider ID' of this LDAP server
+     label: 'LDAP'  ###可以自定义gitlab登陆况显示的名词
+     host: '172.17.0.4' ###ldap服务器地址
+     port: 389  ###ldap端口（默认的389）
+     uid: 'cn'  ###ldap登陆的用户名
+     bind_dn: 'cn=admin,dc=rrcc,dc=cn'  #绑定的用户的完整 DN
+     password: '123456'                ##绑定用户的密码
+     encryption: 'plain' # "start_tls" or "simple_tls" or "plain"
+     verify_certificates: false
+     smartcard_auth: false
+     active_directory: flase
+     allow_username_or_email_login: false  ###邮箱用户是否可以登陆
+     lowercase_usernames: false
+     block_auto_created_users: false   ####不允许用户注册
+     base: 'ou=people,dc=rrcc,dc=cn'    ###用户的搜索域
+     user_filter: ''
+EOS
+
