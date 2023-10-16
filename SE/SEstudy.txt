@@ -49,9 +49,6 @@ tcpdump -i eth0
 查看磁盘分区uuid及文件系统格式
 blkid  /dev/vad1
 
-grep 关键词 -C 10
-查看关键词前后10行
-
 
 安装中文字体
 yum install -y fontconfig mkfontscale
