@@ -49,9 +49,6 @@ tcpdump -i eth0
 查看磁盘分区uuid及文件系统格式
 blkid  /dev/vad1
 
-grep 关键词 -C 10
-查看关键词前后10行
-
 
 安装中文字体
 yum install -y fontconfig mkfontscale
@@ -108,16 +105,12 @@ vi /etc/vim/vimrc.tiny
 
   查看进程的运行时间
   ps -p PID -o etime
-
+是以时分秒格式显示
 
 
   set GLOBAL max_connections=1000;
  show VARIABLES like
  'max_connections';
-
-
-
- ssh互信
 
 JumpServer'sRedis1
  --requirepass "WdRedis6379"
@@ -125,9 +118,11 @@ JumpServer'sRedis1
 
  sql_mode = STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
 
- 生成ssh-key：
- ssh-keygen -m PEM -t rsa -b 4096
-
+ssh互信
+服务器A生成ssh-key：
+ssh-keygen -m PEM -t rsa -b 4096
+ssh-copy-id [destuser]@[destIP] #拷贝到服务器B
+然后输入密码，则A可以免密登录B
 
  查看内存占用前10的进程：
   ps aux | head -1;ps aux | sort -rn -k +4 | head
@@ -166,3 +161,9 @@ bash /home/wecode/deployJar.sh '-t${JAR_FILE}' '-a${RUN_JAR_PARAMS}' '-f${LOG_FI
  iostat -x 1 10
  iotop -oP
  pidstat -d 1
+
+
+pgsql数据库添加只读用户：
+
+
+cockpit

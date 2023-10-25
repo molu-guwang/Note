@@ -1,6 +1,5 @@
 FROM centos:7
-MAINTAINER letsbim
-# ADD jdk1.8.0_242 /opt/jdk8
+MAINTAINER moeru
 # ENV JAVA_HOME /opt/jdk8
 # ENV PATH $JAVA_HOME/bin:$PATH
 # Change timezone

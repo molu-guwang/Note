@@ -1,0 +1,9 @@
+.8
+ b40ed8677440f11b26b0d4ac8d7da6236d1d59d4 :6379@16379 myself,master - 0 0 1 connected 0-5460
+ f4cf5af48e038b5de7aa60cb30130fcea2ea0da8 :6379@16379 myself,master - 0 0 2 connected
+171
+5c90559cf0c46799c853ba85377076c7ef9f2fdd :6379@16379 myself,master - 0 0 5 connected 10923-16383
+d49dfd5e2d30d54f7985c8eb119fe13993877637 :6379@16379 myself,master - 0 0 6 connected
+168
+b35ff60c33c669d6438f3ed7732b4c1eaff7c3c8 :6379@16379 myself,master - 0 0 3 connected 5461-10922
+eed63076ca1ec28792ac61b11be8f76cb389fb68 :6379@16379 myself,master - 0 0 4 connected

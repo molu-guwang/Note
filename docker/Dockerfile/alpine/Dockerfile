@@ -1,5 +1,5 @@
 FROM alpine
-MAINTAINER moroad
+MAINTAINER moeru
 WORKDIR /home/
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
 && apk update \
@@ -12,11 +12,10 @@ zlib zlib-dev git wget nodejs npm  openjdk8 \
 && npm install -g n &&n 15.5.0 \
 && npm install -g pm2 && npm install \
 && npm install -g yarn \
-&& rm -rf /usr/bin/node && ln -s /usr/local/bin/node /usr/bin/
+&& rm -rf /usr/bin/node && ln -s /usr/local/bin/node /usr/bin/ \
 && mkdir -p /root/letsy/web
 WORKDIR /root/letsy/web
-RUN yarn && yarn add cross-env
-
+RUN yarn && yarn add cross-env \
 && wget http://nginx.org/download/nginx-1.16.1.tar.gz && tar zxvf nginx-1.16.1.tar.gz \
 && cd nginx-1.16.1 && ./configure --prefix=/usr/share/nginx --sbin-path=/usr/sbin/nginx \
 --modules-path=/usr/lib64/nginx/modules --conf-path=/etc/nginx/nginx.conf \
