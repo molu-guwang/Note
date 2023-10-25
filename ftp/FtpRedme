@@ -1,0 +1,6 @@
+安装两个包就可以直接使用
+客户端使用命令：ftp masterIP即可登录
+配置文件目录：/etc/vsftpd/vsftpd.confs
+匿名默认不用密码：
+no_anon_password=YES
+被动模式得开放设置的端口范围访问

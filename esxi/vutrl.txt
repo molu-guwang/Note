@@ -1,0 +1,72 @@
+注意VLAN号及网络类型。
+注意在虚拟网络编辑器中选择虚拟网络的绑定vlan。
+传iso文件可以挂载，然后启用连接。
+注意交换网络
+
+一次esxi管理网络异常
+问题：
+esxi掉线，管理地址无法访问
+虚拟机业务正常，虚拟机网络正常
+管理地址网关不通，内外网络无法访问
+管理端口正常，但无数据流入流出
+vlan配置选项默认，无法查看及修改
+修改IP之后管理网络也不通
+
+
+解决：
+业务与管理不同网的esxi valn绑定的可在network restore中重置标准交换机
+修改VLAN
+测试管理网络：正常
+添加进入vc
+报错：数据存储与数据中心具有相同的url
+找到那个相同的数据存储设备
+虚拟机、模板中查看是否有虚拟机在数据存储上
+虚拟机，模板中连接的iso取消掉
+修改连接为客户端设备
+再次添加进vc，成功
+分布式交换机告警：分布式交换机不存在主机
+重新添加进交换机
+
+
+
+命令行控制虚拟机：
+
+获取虚拟机vmid：
+vim-cmd vmsvc/getallvms
+关闭虚拟机：
+vim-cmd vmsvc/power.off 3
+打开虚拟机：
+vim-cmd vmsvc/power.on 3
+重启虚拟机：
+vim-cmd vmsvc/power.reset 3
+获取虚拟机的当前状态：
+vim-cmd vmsvc/power.getstate 3
+获取正在运行的虚拟机的信息
+esxcli vm process list
+关闭虚拟机：
+esxcli vm process kill --type=hard --world-id=245735
+注意有三种关闭虚拟机的模式：soft程度最低，hard为立即执行，如果依然不能关机那么就只能用force模式。
+查看虚拟机有没有被关闭：esxcli vm process list （这条命令显示，如果没有在列表里面的则表示已经关闭了）
+
+
+虚拟机开机时显示不可访问：
+确认虚拟机文件位置，并找到虚拟机的配置文件（*.vmx）
+在数据存储中确定位置后从清单中移除虚拟机（注意，是清单中，不是磁盘中）
+右键*.vmx文件，注册为虚拟机
+重新开机即可
+
+vcenter虚拟机开机报错
+无法打开磁盘或其所依赖的快照磁盘之一
+修改VMDK文件
+ddb.thinProvisioned = "1"（如果以前的磁盘是精简磁盘，此处要保留，如果不是,则要注释或者删除。建议将值改为0）
+
+
+虚拟机开机报错：
+***an error occurred during the file system check
+***dropping you to a shell;the system will reboot
+***when you leave the shell.
+***warningive root password for maintenance
+
+输入root密码
+再执行fsck，一直选Y
+完成之后reboot即可
