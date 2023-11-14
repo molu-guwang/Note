@@ -1,0 +1,91 @@
+yum -y install libevent
+
+unzip libfastcommon-master.zip
+cd libfastcommon-master
+./make.sh
+./make.sh install
+
+tar -zxvf FastDFS_v5.05.tar.gz
+cd FastDFS
+./make.sh
+./make.sh install
+
+cd conf/
+cp http.conf mime.types storage.conf tracker.conf client.conf /etc/fdfs/
+cd /etc/fdfs/
+
+跟踪服务器配置文件
+vim tracker.conf
+
+port=22122#端口
+base_path=/home/yuqing/fastdfs#路径  不存在则创建
+
+mkdir -p /home/yuqing/fastdfs
+
+储存服务器配置文件
+vim storage.conf
+
+http.server_port=8888#端口和之后nginx的端口一致
+tracker_server=192.168.232.200:22122
+group_name=group1#组名一致
+store_path0=/home/yuqing/fastdfs#路径 不存在则创建
+port=23000#端口
+
+启动tracker /usr/bin/fdfs_trackerd /etc/fdfs/tracker.conf
+启动storage /usr/bin/fdfs_storaged /etc/fdfs/storage.conf
+
+查看状态netstat -tupln | grep fdfs
+/usr/bin/fdfs_monitor /etc/fdfs/storage.conf
+
+客户端配置文件
+vim client.conf
+base_path=/home/yuqing/fastdfs
+tracker_server=192.168.232.200:22122
+
+cd
+上传文件
+/usr/bin/fdfs_upload_file /etc/fdfs/client.conf 3.txt
+
+yum install gcc-c++ zlib zlib-devel openssl openssl-devel -y
+tar -zxvf fastdfs-nginx-module_v1.16.tar.gz
+
+修改如下两行
+vim fastdfs-nginx-module/src/config
+CORE_INCS="$CORE_INCS /usr/include/fastdfs /usr/include/fastcommon/"
+CORE_LIBS="$CORE_LIBS -L/usr/lib -lfastcommon -lfdfsclient"
+
+
+tar -zxvf nginx-1.9.15.tar.gz
+cd nginx-1.9.15
+./configure --add-module=/root/fastdfs-nginx-module/src/
+
+cp fastdfs-nginx-module/src/mod_fastdfs.conf /etc/fdfs/
+
+vim /usr/local/nginx/conf/nginx.conf
+user  root;
+ listen       8888;#同storage的端口一致
+        server_name  localhost;
+        location ~/group1/ {
+                ngx_fastdfs_module;
+            }
+
+cp /usr/lib64/libfdfsclient.so /usr/lib/
+
+vim /etc/fdfs/mod_fastdfs.conf
+ tracker_server=192.168.232.200:22122
+storage_server_port=23000
+url_have_group_name = true
+
+/usr/local/nginx/sbin/nginx
+
+yum install httpd -y
+service httpd start
+
+防火墙策略
+service iptables stop或者开启防火墙各个端口
+iptables -I INPUT -p tcp --dport 端口 -j ACCEPT或者
+echo  -A INPUT -p tcp -m tcp --dport 端口 -j ACCEPT >> /etc/sysconfig/iptables
+
+setenforce 0
+
+/usr/bin/fdfs_upload_file /etc/fdfs/client.conf 3.txt

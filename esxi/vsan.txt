@@ -1,0 +1,49 @@
+需要在web client上操作
+
+硬件要求
+每台主机本地至少需要一块安装盘，1块SSD，1块HDD。如果VC没识别SSD，则在VC手动标记即可。
+可用raid卷，但是不推荐，最好全是单盘raid0。
+vSAN要求磁盘组中所有磁盘上，都没有任何文件系统、分区表。用partedUtil删除分区表。
+不用在venter上添加要加入vsan的存储器
+不用在venter上添加主机磁盘组
+关闭HA
+记得分配vsan许可
+
+集群开启vsan
+
+添加vsan网络，保证有空余的上行链路。指定一致的port group。
+创建vsan交换机，或者使用现有交换机。
+标准交换机需要每台都添加，需要开启vsan。或者是有空余的上链链路。
+分布交换则在主页添加，vsan集群有多少esxi主机则需要设置多少条上行链路数。
+IPV4设置同一网段静态，内部地址即可。
+
+新添加主机时，也要在交换机规则内。硬件要求也如上。
+
+
+
+配置存储策略
+在主页中，选择规则和配置文件-虚拟机存储策略-创建新虚拟机存储策略。（一般会有个默认的vsan策略。）
+
+VSAN创建完毕
+
+创建虚拟机时，记得选择存储策略。
+
+配置故障域。
+
+vsan创建完毕即可开启HA
+
+
+
+
+
+esxcli storage core device list 查看磁盘盘符及位置
+partedUtil get 盘符位置 /可以查看该盘符下面的所有分区，其中从第二排开始的行首为分区ID
+partedUtil delete 盘符位置 分区ID  /删除分区
+如果delete显示类似：
+Error: Read-only file system during write on
+Unable to delete partition 2 from device /vmfs/devices/disks/naa.6842b2b06b42570023118721520fce4d
+
+则用如下命令：
+esxcli system coredump partition get /显示活跃分区
+esxcli system coredump partition set --enable false /标记为禁用
+然后再delete

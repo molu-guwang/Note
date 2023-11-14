@@ -109,4 +109,4 @@ systemctl start xl2tpd.service
 验证服务端服务
 
 服务日志在/var/log/syslog
-tail  -200f  /var/log/syslog | grep -v  kubelet
+
