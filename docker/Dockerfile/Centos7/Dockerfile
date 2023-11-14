@@ -9,6 +9,7 @@ RUN yum install -y pcre-devel wget net-tools gcc zlib zlib-devel make openssl-de
 WORKDIR /home
 # Install jdk
 RUN wget https://mirrors.tuna.tsinghua.edu.cn/centos/7/os/x86_64/Packages/java-1.8.0-openjdk-1.8.0.262.b10-1.el7.x86_64.rpm \
+    --no-check-certificate \
 && yum install java-1.8.0-openjdk-1.8.0.262.b10-1.el7.x86_64.rpm -y
 # Install node
 RUN curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo |  tee /etc/yum.repos.d/yarn.repo\
@@ -39,7 +40,10 @@ RUN cd nginx-1.16.1 && ./configure --prefix=/usr/share/nginx --sbin-path=/usr/sb
 --with-http_secure_link_module --with-http_degradation_module --with-http_slice_module \
 --with-http_stub_status_module  --with-http_auth_request_module \
 --with-mail=dynamic --with-mail_ssl_module --with-pcre --with-pcre-jit --with-stream=dynamic \
---with-stream_ssl_module   && make && make install
+--with-stream_ssl_module   && make && make install  \
+&& sed -i '1 a user root;' /etc/nginx/nginx.conf \
+&& mkdir -p /var/lib/nginx/tmp/client_body
+
 
 # ADD Nginx.conf
 #COPY nginx.conf /etc/nginx/

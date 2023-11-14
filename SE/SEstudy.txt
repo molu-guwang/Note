@@ -74,20 +74,7 @@ iptables -I INPUT  -m state --state NEW -p tcp -m multiport --dports 3306,6379 -
 mysql创建数据库并设定字符集
 create database smartfactory default charset utf8mb4 collate utf8mb4_general_ci;
 
-mysql赋权
-grant all on *.* to root@'%' identified by 'passwd' with grant option;
-flush privileges;
 
-
-[Err] 1055 - Expression #1 of ORDER BY clause is not in GROUP BY clause and contains nonaggregated
--- 查看SQL_MODE
-SELECT @@sql_mode;
--- 修改SQL_MODE
-SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
-#以上方法只是修改当前数据库的mode，修改所以数据库的mode请修改配置文件
-sql_mode = STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
-
-grant all privileges on zabbix.* to zabbix@"%" identified by 'password' with grant option;
 
 查看nginx证书时效
 openssl x509 -in /root/project/ssl/server.crt -noout -dates
@@ -108,15 +95,12 @@ vi /etc/vim/vimrc.tiny
 是以时分秒格式显示
 
 
-  set GLOBAL max_connections=1000;
- show VARIABLES like
- 'max_connections';
+
 
 JumpServer'sRedis1
  --requirepass "WdRedis6379"
 -e MYSQL_ROOT_PASSWORD=JumpServer'sMysql1
 
- sql_mode = STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
 
 ssh互信
 服务器A生成ssh-key：
@@ -134,25 +118,7 @@ ssh-copy-id [destuser]@[destIP] #拷贝到服务器B
 
 
 
-  create user wecode identified by 'wecode@2022';
-
-grant all privileges on *.* to 'wecode'@'%' identified by 'wecode' with grant option;
-
-数据库连接2059错误：
-由于mysql8.0 加密方式变更
-use mysql;
-ALTER USER ‘user’@‘%’ IDENTIFIED WITH mysql_native_password BY ‘passwd’;
-
-
-set global innodb_file_format = BARRACUDA;
-SET GLOBAL innodb_large_prefix = ON;
-
-
-CREATE DATABASE `wecode_cloud_base_v2` CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci';
-
-
 bash /home/wecode/deployJar.sh '-t${JAR_FILE}' '-a${RUN_JAR_PARAMS}' '-f${LOG_FILE}'
-
 
 
 
@@ -167,3 +133,21 @@ pgsql数据库添加只读用户：
 
 
 cockpit
+
+
+ config set requirepass ""
+
+create user 'allLeader'@'%' identified  BY "93@hIKxkDjs56JdLP1c@Leader";
+create user 'allDevelop'@'%' identified  BY "327chja89bnnJdW3@Dev";
+
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON prod_sfsj.* TO 'allLeader'@'%';
+GRANT SELECT,INSERT,UPDATE ON prod_sfsj.* TO 'allDevelop'@'%';
+
+
+es  迁移数据：
+elasticdump --input=http://172.26.244.184:9200/ --output=http://192.168.60.229:9200/ --all=true --type=analyzer
+elasticdump --input=http://172.26.244.184:9200/ --output=http://192.168.60.229:9200/ --all=true --type=mapping
+elasticdump --input=http://172.26.244.184:9200/ --output=http://192.168.60.229:9200/ --all=true --type=data
+
+

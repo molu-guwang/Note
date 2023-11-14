@@ -1,0 +1,176 @@
+version: "3"
+
+services:
+  base-platform-service:
+    container_name: base-platform-service
+    image: openjdk:8u332-jdk
+    restart: always
+    stdin_open: true   #相当于docker run -i
+    tty: true   #相当于docker run -t  在容器需要挂起时使用
+    extra_hosts:
+      -  "global-elasticsearch-dev:192.168.60.204"
+      -  "global-nacos-dev:192.168.60.205"
+      -  "global-mysql-dev:192.168.60.205"
+      -  "global-redis-dev:192.168.60.205"
+      -  "global-rabbitmq-dev:192.168.60.205"
+      -  "global-xxljob-dev:192.168.60.205"
+      -  "global-mongo-dev:192.168.60.205"
+      -  "global-apisix-dev:192.168.60.205"
+    environment:
+      - "TZ=Asia/Shanghai"
+    volumes:
+      - ./data/log/:/data/server/log/
+      - ./data/server/wygtech/base-platform/:/data/server/wygtech/base-platform/
+    ports:
+      - "27101:27101/tcp"
+    networks:
+         vmnet:
+            ipv4_address: 172.18.0.2
+
+  wygtech-workflow-service:
+    container_name: wygtech-workflow-service
+    image: openjdk:8u332-jdk
+    restart: always
+    stdin_open: true
+    tty: true
+    extra_hosts:
+      - "global-elasticsearch-dev:192.168.60.204"
+      - "global-nacos-dev:192.168.60.205"
+      - "global-mysql-dev:192.168.60.205"
+      - "global-redis-dev:192.168.60.205"
+      - "global-rabbitmq-dev:192.168.60.205"
+      - "global-xxljob-dev:192.168.60.205"
+      - "global-mongo-dev:192.168.60.205"
+      - "global-apisix-dev:192.168.60.205"
+    environment:
+      - "TZ=Asia/Shanghai"
+    volumes:
+      - ./data/log/:/data/server/log/
+      - ./data/server/wygtech/wygtech-workflow-service/:/data/server/wygtech/wygtech-workflow-service/
+    ports:
+      - "7601:7601/tcp"
+      - "10005:10005/tcp"
+      - "52789:52789/tcp"
+    networks:
+         vmnet:
+            ipv4_address: 172.18.0.3
+
+  sfsj-event-center-service:
+    container_name: sfsj-event-center-service
+    image: openjdk:8u332-jdk
+    restart: always
+    stdin_open: true
+    tty: true
+    extra_hosts:
+      - "global-elasticsearch-dev:192.168.60.204"
+      - "global-nacos-dev:192.168.60.205"
+      - "global-mysql-dev:192.168.60.205"
+      - "global-redis-dev:192.168.60.205"
+      - "global-rabbitmq-dev:192.168.60.205"
+      - "global-xxljob-dev:192.168.60.205"
+      - "global-mongo-dev:192.168.60.205"
+      - "global-apisix-dev:192.168.60.205"
+    environment:
+      - "TZ=Asia/Shanghai"
+    volumes:
+      - ./data/log/:/data/server/log/
+      - ./data/server/wygtech/sfsj-event-center-service:/data/server/wygtech/sfsj-event-center-service
+    ports:
+      - "5005:5005/tcp"
+      - "7288:7288/tcp"
+      - "10013:10013/tcp"
+      - "60500:60500/tcp"
+    networks:
+         vmnet:
+            ipv4_address: 172.18.0.4
+
+  tool-center:
+    container_name: tool-center
+    image: openjdk:8u332-jdk
+    restart: always
+    stdin_open: true
+    tty: true
+    extra_hosts:
+      - "global-elasticsearch-dev:192.168.60.204"
+      - "global-nacos-dev:192.168.60.205"
+      - "global-mysql-dev:192.168.60.205"
+      - "global-redis-dev:192.168.60.205"
+      - "global-rabbitmq-dev:192.168.60.205"
+      - "global-xxljob-dev:192.168.60.205"
+      - "global-mongo-dev:192.168.60.205"
+      - "global-apisix-dev:192.168.60.205"
+    environment:
+      - "TZ=Asia/Shanghai"
+    volumes:
+      - ./data/log/:/data/server/log/
+      - ./data/server/wygtech/tool-center/:/data/server/wygtech/tool-center/
+    ports:
+      - "10012:10012/tcp"
+      - "17101:17101/tcp"
+      - "53165:53165/tcp"
+    networks:
+         vmnet:
+            ipv4_address: 172.18.0.5
+
+  wygtech-signature-service:
+    container_name: wygtech-signature-service
+    image: openjdk:8u332-jdk
+    restart: always
+    stdin_open: true
+    tty: true
+    extra_hosts:
+      - "global-elasticsearch-dev:192.168.60.204"
+      - "global-nacos-dev:192.168.60.205"
+      - "global-mysql-dev:192.168.60.205"
+      - "global-redis-dev:192.168.60.205"
+      - "global-rabbitmq-dev:192.168.60.205"
+      - "global-xxljob-dev:192.168.60.205"
+      - "global-mongo-dev:192.168.60.205"
+      - "global-apisix-dev:192.168.60.205"
+    environment:
+      - "TZ=Asia/Shanghai"
+    volumes:
+      - ./data/log/:/data/server/log/
+      - ./data/server/wygtech/signature/:/data/server/wygtech/signature/
+    ports:
+      - "7204:7204/tcp"
+      - "10008:10008/tcp"
+      - "59404:59404/tcp"
+    networks:
+         vmnet:
+            ipv4_address: 172.18.0.6
+
+  wygtech-boss-service:
+    container_name: wygtech-boss-service
+    image: openjdk:8u332-jdk
+    restart: always
+    stdin_open: true
+    tty: true
+    extra_hosts:
+      - "global-elasticsearch-dev:192.168.60.204"
+      - "global-nacos-dev:192.168.60.205"
+      - "global-mysql-dev:192.168.60.205"
+      - "global-redis-dev:192.168.60.205"
+      - "global-rabbitmq-dev:192.168.60.205"
+      - "global-xxljob-dev:192.168.60.205"
+      - "global-mongo-dev:192.168.60.205"
+      - "global-apisix-dev:192.168.60.205"
+    environment:
+      - "TZ=Asia/Shanghai"
+    volumes:
+      - ./data/log/:/data/server/log/
+      - ./data/server/wygtech/wygtech-boss/:/data/server/wygtech/wygtech-boss/
+    ports:
+      - "10009:10009/tcp"
+      - "27102:27102/tcp"
+      - "37199:37199/tcp"
+    networks:
+         vmnet:
+            ipv4_address: 172.18.0.7
+
+
+networks:
+    vmnet:
+      ipam:
+         config:
+         - subnet: 172.18.0.0/16

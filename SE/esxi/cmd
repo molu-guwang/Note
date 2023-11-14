@@ -1,0 +1,10 @@
+查看任务
+vim-cmd vimsvc/task_list
+
+
+查看任务信息
+vim-cmd vimsvc/task_info haTask-9-vim.VirtualMachine.exportVm-4230280140
+
+停止任务
+vim-cmd vimsvc/task_cancel haTask-9-vim.VirtualMachine.exportVm-4230280140
+

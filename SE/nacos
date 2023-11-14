@@ -1,0 +1,19 @@
+nacos配置文件一定要加密！
+
+迁移nacos的配置文件，欲把机器A上的nacos配置文件加到机器B上的nacos中
+
+ step1:将机器A上的配置文件导出并上传到机器B上
+
+若两台机器联通, 直接通过接口下载
+curl --location --request GET 'http://ip_of_A/nacos/v1/cs/configs?export=true&group=&tenant=&appName=&ids=&dataId=' > /tmp/nacos_config.zip
+若两台机器不联通，则手动从机器A的nacos管理页面下载
+       setp2:将zip文件导入到机器B的nacos中
+
+curl --location --request POST 'http://127.0.0.1:8848/nacos/v1/cs/configs?import=true&namespace=' \
+  --form 'policy=OVERWRITE' \
+  --form 'file=@"/tmp/nacos_config.zip"'
+
+
+     注：policy 是导入时的同名策略，可以为 ABORT(终止导入)、SKIP(跳过)、OVERWRITE(覆盖)
+
+           file 中填写配置文件的路径
