@@ -463,6 +463,8 @@ yum -y install epel-release*
 安装pip
 yum -y install python3-pip
 
+
+
 查看pip版本
 pip -V
 升级pip
@@ -473,6 +475,10 @@ pip3 install docker-compose -i https://pypi.douban.com/simple
 查看docker-compose版本
 docker-compose -version
 
+
+yum -y install epel-release* python3-pip
+pip3 install --upgrade pip  -i https://pypi.douban.com/simple
+pip3 install docker-compose -i https://pypi.douban.com/simple
 
 docker-compose -f docker-compose-demo.yml up -d
 -f 指定yaml文件，默认docker-compose.yml

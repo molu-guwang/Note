@@ -1,0 +1,18 @@
+docker run --privileged -itd --restart=unless-stopped --name kube_dashboard -v /home/docker-mount/kubepi/:/var/lib/kubepi/ -p 8000:80 kubeoperator/kubepi-server
+# 地址: http://192.168.2.1:8000
+# 默认用户名：admin
+# 默认密码：kubepi
+
+
+获取登录需要用到的ip地址和登录token：
+
+# 在 k8s 主节点上创建用户，并获取token
+kubectl create sa kubepi-user --namespace kube-system
+kubectl create clusterrolebinding kubepi-user --clusterrole=cluster-admin --serviceaccount=kube-system:kubepi-user
+
+# 在主节点上获取新建的用户 kubeapi-user 的 token
+kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep kubepi-user | awk '{print $1}') | grep token: | awk '{print $2}'
+IsImtpZCI6IkhVeUtyc1BpU1JvRnVacXVqVk1PTFRkaUlIZm1KQTV6Wk9WSExSRllmd0kifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJrdWJlcGktdXNlci10b2tlbi10cjVsMiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJrdWJlcGktdXNlciIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjJiYzlhZDRjLWVjZTItNDE2Mi04MDc1LTA2NTI0NDg0MzExZiIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDprdWJlLXN5c3RlbTprdWJlcGktdXNlciJ9.QxkR1jBboqTYiVUUVO4yGhfWmlLDA5wHLo_ZnjAuSLZQDyVevCgBluL6l7y7UryRdId6FmBZ-L0QitvOuTsurcjGL2QHxPE_yZsNW7s9K7eikxJ8q-Q_yOvnADtAueH_tcMGRGW9Zyec2TlmcGTZCNaNUme84TfMlWqX7oP3GGJGMbMGN7H4fPXh-Qqrdp-0MJ3tP-dk3koZUEu3amrq8ExSmjIAjso_otrgFWbdSOMkCXKsqb9yuZzaw7u5Cy18bH_HW6RbNCRT5jGs5aOwzuMAd0HQ5iNm-5OISI4Da6jGdjipLXejcC1H-xWgLlJBx0RQWu41yoPNF57cG1NubQ
+
+# 在主节点上获取 apiserver 地址
+cat ~/.kube/config | grep server: | awk '{print $2}'

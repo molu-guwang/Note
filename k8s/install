@@ -1,0 +1,367 @@
+#!/bin/bash
+
+
+
+### 关闭swap分区
+echo "swapoff ## 临时生效"
+swapoff -a
+
+## 永久生效可以编辑/etc/fstab文件 注释掉swap那行
+
+sed -ri 's/.*swap.*/#&/' /etc/fstab
+
+# 内核开启IPv4转发需要开启下面的模块
+modprobe br_netfilter
+cat > /etc/sysctl.d/k8s.conf <<EOF
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
+EOF
+
+echo 1 > /proc/sys/net/bridge/bridge-nf-call-iptables
+sysctl -p
+
+
+cat > /etc/docker/daemon.json <<EOF
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "registry-mirrors": [ "https://1nj0zren.mirror.aliyuncs.com", "https://docker.mirrors.ustc.edu.cn", "http://f1361db2.m.daocloud.io", "https://registry.docker-cn.com" ]
+}
+EOF
+
+sleep 1
+
+systemctl daemon-reload
+systemctl restart docker
+sudo systemctl enable docker
+
+firewall-cmd --permanent --zone=public --add-port=10250/tcp
+firewall-cmd --permanent --zone=public --add-port=6443/tcp
+firewall-cmd --reload
+
+
+
+cat <<EOF > /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
+exclude=kube*
+EOF
+
+yum install -y kubelet-1.19.3 kubeadm-1.19.3 kubectl-1.19.3 --disableexcludes=kubernetes
+
+sleep 1
+
+kubeadm version
+
+systemctl enable kubelet
+systemctl daemon-reload
+systemctl restart kubelet
+
+
+kubeadm init \
+  --apiserver-advertise-address=192.168.60.215 \
+  --image-repository registry.aliyuncs.com/google_containers \
+  --kubernetes-version v1.19.0 \
+  --service-cidr=10.96.0.0/12 \
+  --pod-network-cidr=10.244.0.0/16 \
+  --ignore-preflight-errors=all
+
+--kubernetes-version v1.18.8 指定版本
+--apiserver-advertise-address 为通告给其它组件的IP，一般应为master节点的IP地址
+--service-cidr 指定service网络，不能和node网络冲突
+--pod-network-cidr 指定pod网络，不能和node网络、service网络冲突
+--image-repository registry.aliyuncs.com/google_containers 指定镜像源，由于默认拉取镜像地址k8s.gcr.io国内无法访问，这里指定阿里云镜像仓库地址。
+如果k8s版本比较新，可能阿里云没有对应的镜像，就需要自己从其它地方获取镜像了。
+--control-plane-endpoint 标志应该被设置成负载均衡器的地址或 DNS 和端口(可选)
+
+
+mkdir -p $HOME/.kube
+cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+chown $(id -u):$(id -g) $HOME/.kube/config
+
+vim /root/.bash_profile
+# 超级用户变量
+export KUBECONFIG=/etc/kubernetes/admin.conf
+# 设置别名
+alias k=kubectl
+# 设置kubectl命令补齐功能
+source <(kubectl completion bash)
+
+添加网络配置
+kube-flannel.yml
+
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: kube-flannel
+  labels:
+    k8s-app: flannel
+    pod-security.kubernetes.io/enforce: privileged
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  labels:
+    k8s-app: flannel
+  name: flannel
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes/status
+  verbs:
+  - patch
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - clustercidrs
+  verbs:
+  - list
+  - watch
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  labels:
+    k8s-app: flannel
+  name: flannel
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: flannel
+subjects:
+- kind: ServiceAccount
+  name: flannel
+  namespace: kube-flannel
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    k8s-app: flannel
+  name: flannel
+  namespace: kube-flannel
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: kube-flannel-cfg
+  namespace: kube-flannel
+  labels:
+    tier: node
+    k8s-app: flannel
+    app: flannel
+data:
+  cni-conf.json: |
+    {
+      "name": "cbr0",
+      "cniVersion": "0.3.1",
+      "plugins": [
+        {
+          "type": "flannel",
+          "delegate": {
+            "hairpinMode": true,
+            "isDefaultGateway": true
+          }
+        },
+        {
+          "type": "portmap",
+          "capabilities": {
+            "portMappings": true
+          }
+        }
+      ]
+    }
+  net-conf.json: |
+    {
+      "Network": "10.244.0.0/16",
+      "Backend": {
+        "Type": "vxlan"
+      }
+    }
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kube-flannel-ds
+  namespace: kube-flannel
+  labels:
+    tier: node
+    app: flannel
+    k8s-app: flannel
+spec:
+  selector:
+    matchLabels:
+      app: flannel
+  template:
+    metadata:
+      labels:
+        tier: node
+        app: flannel
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/os
+                operator: In
+                values:
+                - linux
+      hostNetwork: true
+      priorityClassName: system-node-critical
+      tolerations:
+      - operator: Exists
+        effect: NoSchedule
+      serviceAccountName: flannel
+      initContainers:
+      - name: install-cni-plugin
+        image: docker.io/flannel/flannel-cni-plugin:v1.2.0
+        command:
+        - cp
+        args:
+        - -f
+        - /flannel
+        - /opt/cni/bin/flannel
+        volumeMounts:
+        - name: cni-plugin
+          mountPath: /opt/cni/bin
+      - name: install-cni
+        image: docker.io/flannel/flannel:v0.22.3
+        command:
+        - cp
+        args:
+        - -f
+        - /etc/kube-flannel/cni-conf.json
+        - /etc/cni/net.d/10-flannel.conflist
+        volumeMounts:
+        - name: cni
+          mountPath: /etc/cni/net.d
+        - name: flannel-cfg
+          mountPath: /etc/kube-flannel/
+      containers:
+      - name: kube-flannel
+        image: docker.io/flannel/flannel:v0.22.3
+        command:
+        - /opt/bin/flanneld
+        args:
+        - --ip-masq
+        - --kube-subnet-mgr
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "50Mi"
+        securityContext:
+          privileged: false
+          capabilities:
+            add: ["NET_ADMIN", "NET_RAW"]
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: EVENT_QUEUE_DEPTH
+          value: "5000"
+        volumeMounts:
+        - name: run
+          mountPath: /run/flannel
+        - name: flannel-cfg
+          mountPath: /etc/kube-flannel/
+        - name: xtables-lock
+          mountPath: /run/xtables.lock
+      volumes:
+      - name: run
+        hostPath:
+          path: /run/flannel
+      - name: cni-plugin
+        hostPath:
+          path: /opt/cni/bin
+      - name: cni
+        hostPath:
+          path: /etc/cni/net.d
+      - name: flannel-cfg
+        configMap:
+          name: kube-flannel-cfg
+      - name: xtables-lock
+        hostPath:
+          path: /run/xtables.lock
+          type: FileOrCreate
+
+
+kubectl apply -f kube-flannel.yml
+
+注释掉下面配置文件中的- --port=0
+/etc/kubernetes/manifests/kube-controller-manager.yaml
+/etc/kubernetes/manifests/kube-scheduler.yaml
+
+kubectl get pod -n kube-system
+查看flannel pod状态(必须要为Running状态,如果kube-flannel起不来,那么就用kubectl describe pod kube-flannel-ds-f5jn6 -n kube-flannel命令查看pod起不来的原因，然后去搜度娘获取解决方案)
+kubectl get pod --all-namespaces
+
+
+加入节点:
+默认的 join token 有效期限为24小时,当过期后该 token 就不能用了,这时需要重新创建 token,创建新的join token需要在主节点上创建,创建命令如下:
+kubeadm token create --print-join-command
+
+删除节点:
+kubectl drain <node name> --delete-local-data --force --ignore-daemonsets
+# 其中 <node name> 是在k8s集群中使用 <kubectl get nodes> 查询到的节点名称
+# 假设这里删除 node3 子节点
+kubectl drain node3 --delete-local-data --force --ignore-daemonsets
+kubectl delete node node3
+
+子节点重置k8s
+子节点执行:
+kubeadm reset
+rm -rf /etc/cni/net.d/
+rm -rf /root/.kube/config
+# 删除cni网络
+ifconfig cni0 down
+ip link delete cni0
+ifconfig flannel.1 down
+ip link delete flannel.1
+
+
+
+
+worker节点加入集群后无法使用kubectl命令,提示访问了8080端口被拒绝:
+将主节点中的/etc/kubernetes/admin.conf文件拷贝到从node节点相同目录下,将主节点的/root/.bash_profile复制到worker节点,然后source /root/.bash_profile
+
+
+
+由于 k8s 1.18对内核版本要求比较高,3.10的内核部署1.18.8使用ipvs模式会存在coredns无法解析等问题,股在此采用iptables模式, 如果你服务内核4+起,则采用iptables 和ipvs均可.
+
+kubectl get cm kube-proxy -n kube-system -o yaml | sed 's/mode: ""/mode: "iptables"/' | kubectl apply -f -
+kubectl -n kube-system rollout restart  daemonsets.apps  kube-proxy
+kubectl -n kube-system rollout restart  daemonsets.apps  kube-flannel-ds
+
+2.1 安装metrics k8s集群监控插件
+k8s metrics插件提供了 top 命令可用于统计 k8s集群资源 的使用情况,它包含有 node 和 pod 两个⼦命令,分别显⽰ node 节点和 Pod 对象的资源使⽤信息.

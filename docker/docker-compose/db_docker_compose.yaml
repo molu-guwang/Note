@@ -9,7 +9,7 @@ services:
     ports:
       - "3666:3306"
     volumes:
-      - "./mount/mysql:/var/lib/mysql"
+      - "./data/mysql:/var/lib/mysql"
       - "./conf/mysql/my.cnf:/etc/my.cnf"
     environment:
       - "MYSQL_ROOT_PASSWORD=R(E8gamA"
@@ -62,7 +62,7 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - "./mount/redis/:/data"
+      - "./data/redis/:/data"
     environment:
       - "TZ=Asia/Shanghai"
     deploy:
@@ -84,7 +84,7 @@ services:
       - "15672:15672"
       - "25672:25672"
     volumes:
-      - "./mount/rabbitmq/:/var/lib/rabbitmq"
+      - "./data/rabbitmq/:/var/lib/rabbitmq"
     environment:
       - "RABBITMQ_DEFAULT_USER=admin"
       - "RABBITMQ_DEFAULT_PASS=sfsj_admin"
