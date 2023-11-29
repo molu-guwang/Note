@@ -151,3 +151,4 @@ elasticdump --input=http://172.26.244.184:9200/ --output=http://192.168.60.229:9
 elasticdump --input=http://172.26.244.184:9200/ --output=http://192.168.60.229:9200/ --all=true --type=data
 
 
+rsync -avzP -e "ssh -i /tmp/jumpserver.pem" /opt/jumpserver-installer-v3.2.1/co root@172.27.116.8:/opt/jumpserver/

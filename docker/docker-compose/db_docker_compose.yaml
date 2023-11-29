@@ -21,7 +21,7 @@ services:
           memory: "6G"
     networks:
          vmnet:
-            ipv4_address: 172.19.0.2
+            ipv4_address: 172.19.0.3
 
 
   nacos:

@@ -356,6 +356,8 @@ worker节点加入集群后无法使用kubectl命令,提示访问了8080端口�
 将主节点中的/etc/kubernetes/admin.conf文件拷贝到从node节点相同目录下,将主节点的/root/.bash_profile复制到worker节点,然后source /root/.bash_profile
 
 
+kubectl label nodes master node-role.kubernetes.io/worker=
+
 
 由于 k8s 1.18对内核版本要求比较高,3.10的内核部署1.18.8使用ipvs模式会存在coredns无法解析等问题,股在此采用iptables模式, 如果你服务内核4+起,则采用iptables 和ipvs均可.
 
