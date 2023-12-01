@@ -43,3 +43,5 @@ spec:
           name: http
         - containerPort: 22
           name: ssh
+      nodeSelector: #指定运行节点，需要用下面的命令给节点打上label
+        type: k8s-master  #此处为label，并不是node名
