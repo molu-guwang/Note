@@ -1,0 +1,183 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nacos
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nacos
+  labels:
+    app: nacos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nacos
+  template:
+    metadata:
+      labels:
+        app: nacos
+    spec:
+      containers:
+        - name: nacos
+          image: nacos/nacos-server:v2.3.0
+          ports:
+            - containerPort: 8848
+          env:
+            - name: MODE
+              value: standalone
+            - name: MYSQL_SERVICE_HOST
+              value: mysql
+            - name: MYSQL_SERVICE_PORT
+              value: "3306"
+            - name: MYSQL_DATABASE
+              value: nacos_config
+            - name: MYSQL_USER
+              value: root
+            - name: MYSQL_PASSWORD
+              value: password
+          volumeMounts:
+            - name: nacos-config
+              mountPath: /home/nacos/init.d/custom.properties
+              subPath: custom.properties
+              readOnly: true
+      volumes:
+        - name: nacos-config
+          configMap:
+            name: nacos-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nacos
+spec:
+  selector:
+    app: nacos
+  ports:
+    - protocol: TCP
+      port: 8848
+      targetPort: 8848
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 3306
+  selector:
+    app: mysql
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:5.7
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              /entrypoint.sh mysqld &
+              pid="$!"
+              mysql=( mysql --protocol=tcp -uroot -ppassword -h 127.0.0.1 )
+              for i in {30..0}; do
+                  if echo 'SELECT 1' | "${mysql[@]}" &> /dev/null; then
+                      break
+                  fi
+                  echo 'MySQL init process in progress...'
+                  sleep 1
+              done
+              if [ "$i" = 0 ]; then
+                  echo >&2 'MySQL init process failed.'
+                  exit 1
+              fi
+              echo "GRANT ALL ON *.* TO root@'%';" | "${mysql[@]}"
+              echo 'FLUSH PRIVILEGES;' | "${mysql[@]}"
+              if [ -n "$MYSQL_ROOT_PASSWORD" ]; then
+                  echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';" | "${mysql[@]}"
+              fi
+              if ! echo 'SHOW DATABASES;' | "${mysql[@]}" | grep 'nacos_config'; then
+                  echo "CREATE DATABASE nacos_config;" | "${mysql[@]}"
+              fi
+              if ! echo 'SHOW DATABASES;' | "${mysql[@]}" | grep 'nacos_config'; then
+                  echo >&2 'MySQL database creation failed.'
+                  exit 1
+              fi
+              if [ -f /initdb/nacos.sql ]; then
+                  "${mysql[@]}" nacos_config < /initdb/nacos.sql
+              fi
+              if ! kill -s TERM "$pid" || ! wait "$pid"; then
+                  echo >&2 'MySQL init process failed.'
+                  exit 1
+              fi
+              echo
+              echo 'MySQL init process done. Ready for start up.'
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: password
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-data
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 40Gi
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nacos-config
+data:
+  custom.properties: |
+    server.contextPath=/nacos
+    server.port=8848
+    server.ip=127.0.0.1 
+    nacos.logging.default.config.enabled=false
+    spring.datasource.platform=mysql
+    db.num=1
+    db.url.0=jdbc:mysql://mysql:3306/nacos_config?characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true
+    db.user=root
+    db.password=password
+    db.pool.type=druid
+    db.validation.query=SELECT 1

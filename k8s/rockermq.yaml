@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: rocketmqnamesrv
+  name: rocketmqnamesrv
+  namespace: kube-public
+spec:
+  selector:
+    matchLabels:
+      app: rocketmqnamesrv
+  template:
+    metadata:
+      labels:
+        app: rocketmqnamesrv
+    spec:
+      containers:
+        - command:
+            - sh
+            - /home/rocketmq/rocketmq-5.1.2/bin/mqnamesrv
+          env:
+            - name: TZ
+              value: Asia/Shanghai
+            - name: JAVA_OPT_EXT
+              value: '-Duser.home=/home/rocketmq -Xms512M -Xmx512M -Xmn128m'
+            - name: autoCreateTopicEnable
+              value: 'true'
+            - name: ROCKETMQ_SERVER
+              value: rocketmqnamesrv
+          image: 'apache/rocketmq:5.1.2'
+          imagePullPolicy: IfNotPresent
+          name: rocketmqnamesrv
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rocketmqnamesrv
+  namespace: kube-public
+spec:
+  ports:
+    - name: namesrvport
+      nodePort: 31376
+      port: 9876
+      protocol: TCP
+      targetPort: 9876
+  selector:
+    app: rocketmqnamesrv
+  type: NodePort
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: rocketmqbroker
+  name: rocketmqbroker
+  namespace: kube-public
+spec:
+  selector:
+    matchLabels:
+      app: rocketmqbroker
+  template:
+    metadata:
+      labels:
+        app: rocketmqbroker
+    spec:
+      containers:
+        - command:
+            - sh
+            - /home/rocketmq/rocketmq-5.1.2/bin/mqbroker
+            - '-n'
+            - 'rocketmqnamesrv:9876'
+            - '-c'
+            - /home/rocketmq/rocketmq-5.1.2/conf/broker.conf
+          env:
+            - name: TZ
+              value: Asia/Shanghai
+            - name: JAVA_OPT_EXT
+              value: '-Xms512M -Xmx512M -Xmn128m'
+            - name: NAMESRV_ADDR
+              value: 'rocketmqnamesrv:9876'
+          image: 'apache/rocketmq:5.1.2'
+          imagePullPolicy: IfNotPresent
+          name: rocketmqbroker
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: rocketmqbroker
+  name: rocketmqbroker
+  namespace: kube-public
+spec:
+  ports:
+    - name: broker-port
+      nodePort: 30911
+      port: 10911
+      protocol: TCP
+      targetPort: 10911
+    - name: 7cpk4a
+      nodePort: 30912
+      port: 10912
+      protocol: TCP
+      targetPort: 10912
+    - name: ykdmnd
+      nodePort: 30909
+      port: 10909
+      protocol: TCP
+      targetPort: 10909
+  selector:
+    app: rocketmqbroker
+  sessionAffinity: None
+  type: NodePort
+
+
