@@ -1,0 +1,60 @@
+docker network create -d overlay  --attachable
+
+在Docker Swarm中，您可以为特定的节点或节点组部署特定的服务。为了实现这个目的，您需要使用docker stack deploy命令中的--constraint选项。通过--constraint选项，您可以根据节点标签来指定您期望运行服务的节点。然后，您可以在docker-compose.yml文件中定义服务，并使用它来将服务分配给特定的节点。
+
+
+1. 为节点打标签
+在您想要部署服务的节点上，您需要为节点打上标签。例如，您可以使用以下命令将标签“type=db”打在一个节点上：
+
+$ docker node update --label-add type=db <NODE_NAME>
+
+2. 编写docker-compose.yml文件
+然后，您可以编写docker-compose.yml文件，在文件中定义服务，并使用constraints子项将服务分配给特定的节点。例如：
+version: '3'
+services:
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    deploy:
+      placement:
+        constraints: [node.labels.type == db]
+volumes:
+  mysql_data:
+
+这个docker-compose.yml文件定义了一个MySQL服务，并使用placement.constraints选项将服务分配给带有标签“type=db”的节点。
+
+3. 部署服务
+最后，您可以使用docker stack deploy命令将服务部署到Swarm中。例如：
+$ docker stack deploy --compose-file docker-compose.yml myapp
+
+这将在Swarm中启动服务。MySQL服务将被分配到带有标签“type=db”的节点上。
+请注意，您可以为多个服务使用相同的节点标签，以确保这些服务在相同的节点上运行，并为与分配单个服务不同的节点组部署其他服务。
+
+
+
+
+
+在 Docker Swarm 中，需要打开的主要端口包括：
+
+- TCP 端口：
+  - `2377` - Swarm管理端口
+  - `7946` - Swarm节点通信端口
+  - 服务容器所使用的其他端口（如HTTP / HTTPS等）
+
+- UDP 端口：
+  - `7946` - Swarm节点通信端口
+  - `4789` - Overlay 网络数据流量端口
+
+您需要确保在集群中的所有节点上打开这些必要的端口，以便 Swarm Overlay 网络中的容器可以进行通信。如果使用的是第三方防火墙，您需要将这些端口添加到防火墙规则中。
+
+firewall-cmd --permanent --zone=public --add-port=2377/tcp
+firewall-cmd --permanent --zone=public --add-port=4789/udp
+firewall-cmd --permanent --zone=public --add-port=7946/tcp
+firewall-cmd --permanent --zone=public --add-port=7946/udp
+firewall-cmd --reload

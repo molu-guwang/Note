@@ -2,39 +2,36 @@ version: '3.8'
 
 services:
 
-  mysql:
-    container_name: mysql
+  mysql-dev:
     image: mysql:5.7.33
-    restart: always
     ports:
-      - "3666:3306"
+      - "3306:3306"
     volumes:
-      - "./data/mysql:/var/lib/mysql"
+      - "./mount/mysql:/var/lib/mysql"
       - "./conf/mysql/my.cnf:/etc/my.cnf"
     environment:
       - "MYSQL_ROOT_PASSWORD=R(E8gamA"
       - "TZ=Asia/Shanghai"
     deploy:
+      placement:
+        constraints: [node.labels.type == master]
       resources:
         limits:
           cpus: "0.50"
           memory: "6G"
     networks:
-         vmnet:
-            ipv4_address: 172.19.0.3
+      - vmnet
 
 
-  nacos:
-    container_name: nacos
+  nacos-dev:
     image: nacos/nacos-server:2.0.3
-    restart: always
     ports:
       - "8848:8848"
     volumes:
       - "./conf/nacos/application.properties:/home/nacos/conf/application.properties"
     environment:
       - "MODE=standalone"
-      - "MYSQL_SERVICE_HOST=172.19.0.2"
+      - "MYSQL_SERVICE_HOST=mysql-dev"
       - "MYSQL_SERVICE_PORT=3306"
       - "MYSQL_SERVICE_DB_NAME=nacos"
       - "MYSQL_SERVICE_USER=root"
@@ -43,66 +40,64 @@ services:
       - "MYSQL_DATABASE_NUM=1"
       - "TZ=Asia/Shanghai"
     deploy:
+      placement:
+        constraints: [node.labels.type == master]
       resources:
         limits:
           cpus: "0.20"
           memory: "2G"
     networks:
-         vmnet:
-            ipv4_address: 172.19.0.3
+      - vmnet
     depends_on:
-      - "mysql"
+      - "mysql-dev"
 
 
-  redis:
-    container_name: redis
+  redis-dev:
     image: redis:4.0.9
-    restart: always
-    command: redis-server --appendonly yes
     ports:
       - "6379:6379"
     volumes:
-      - "./data/redis/:/data"
+      - "./mount/redis/:/data"
+      - "./conf/redis:/usr/local/etc/redis"
     environment:
       - "TZ=Asia/Shanghai"
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
     deploy:
+      placement:
+        constraints: [node.labels.type == master]
       resources:
         limits:
           cpus: "0.20"
           memory: "6G"
     networks:
-         vmnet:
-            ipv4_address: 172.19.0.4
+      - vmnet
 
 
-  rabbitmq:
-    container_name: rabbitmq
+  rabbitmq-dev:
     image: rabbitmq:3.12.8-management
-    restart: always
     ports:
       - "5672:5672"
       - "15672:15672"
       - "25672:25672"
     volumes:
-      - "./data/rabbitmq/:/var/lib/rabbitmq"
+      - "./mount/rabbitmq/:/var/lib/rabbitmq"
     environment:
       - "RABBITMQ_DEFAULT_USER=admin"
       - "RABBITMQ_DEFAULT_PASS=sfsj_admin"
       - "TZ=Asia/Shanghai"
     deploy:
+      placement:
+        constraints: [node.labels.type == master]
       resources:
         limits:
           cpus: "0.20"
           memory: "2G"
     networks:
-         vmnet:
-            ipv4_address: 172.19.0.5
+      - vmnet
 
 
   apisix:
-    container_name: apisix
-    image: apache/apisix:3.6.0-centos
-    restart: always
+    image: apache/apisix:3.3.0-centos
     ports:
       - "9180:9180/tcp"
       - "9080:9080/tcp"
@@ -114,126 +109,175 @@ services:
     environment:
       - "TZ=Asia/Shanghai"
     deploy:
+      placement:
+        constraints: [node.labels.type == master]
       resources:
         limits:
           cpus: "0.20"
           memory: "2G"
     networks:
-         vmnet:
-            ipv4_address: 172.19.0.6
+      - vmnet
     depends_on:
       - "etcd"
-      - "nacos"
+      - "nacos-dev"
+
+  web1:
+    image: nginx:1.19.0-alpine
+    volumes:
+      - ./conf/apisix_web/nginx_1.conf:/etc/nginx/nginx.conf
+    ports:
+      - "9081:80/tcp"
+    environment:
+      - NGINX_PORT=80
+    deploy:
+      placement:
+        constraints: [node.labels.type == master]
+      resources:
+        limits:
+          cpus: "0.10"
+          memory: "500M"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "512M"
+    networks:
+      - vmnet
+    depends_on:
+      - "apisix"
+
+
+  web2:
+    image: nginx:1.19.0-alpine
+    volumes:
+      - ./conf/apisix_web/nginx_2.conf:/etc/nginx/nginx.conf
+    ports:
+      - "9082:80/tcp"
+    environment:
+      - NGINX_PORT=80
+    deploy:
+      placement:
+        constraints: [node.labels.type == master]
+      resources:
+        limits:
+          cpus: "0.10"
+          memory: "500M"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "512M"
+    networks:
+      - vmnet
+    depends_on:
+      - "apisix"
 
 
   apisix-dashboard:
-    container_name: apisix-dashboard
     image: apache/apisix-dashboard:3.0.1-centos
-    restart: always
     ports:
       - "9000:9000"
     volumes:
       - "./conf/apisix_dashboard/conf.yaml:/usr/local/apisix-dashboard/conf/conf.yaml"
     deploy:
+      placement:
+        constraints: [node.labels.type == master]
       resources:
         limits:
           cpus: "0.10"
           memory: "500M"
     networks:
-         vmnet:
-            ipv4_address: 172.19.0.7
+      -  vmnet
     depends_on:
       - "etcd"
       - "apisix"
 
 
   etcd:
-    container_name: etcd
     image: bitnami/etcd:3.4.15
-    restart: always
     ports:
       - "2379:2379/tcp"
+    volumes:
+      - "./mount/etcd/data/:/bitnami/etcd/data/"
     environment:
       ETCD_ENABLE_V2: "true"
       ALLOW_NONE_AUTHENTICATION: "yes"
-      ETCD_ADVERTISE_CLIENT_URLS: "http://172.19.0.8:2379"  #此处用etcd:2379最好
-      ETCD_LISTEN_CLIENT_URLS: "http://172.19.0.8:2379"
+      ETCD_ADVERTISE_CLIENT_URLS: "http://etcd:2379"
+      ETCD_LISTEN_CLIENT_URLS: "http://0.0.0.0:2379"
       TZ: "Asia/Shanghai"
     deploy:
+      placement:
+        constraints: [node.labels.type == master]
       resources:
         limits:
           cpus: "0.20"
           memory: "2G"
     networks:
-         vmnet:
-            ipv4_address: 172.19.0.8
+      - vmnet
 
 
-  xxl-lob:
-    container_name: xxl-job
+  xxljob-dev:
     image: xuxueli/xxl-job-admin:2.4.0
-    restart: always
     ports:
       - "8080:8080"
     environment:
-       PARAMS: "--spring.datasource.url=jdbc:mysql://172.19.0.2:3306/xxl_job?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai  --spring.datasource.username=root --spring.datasource.password=R(E8gamA"
+       PARAMS: "--spring.datasource.url=jdbc:mysql://mysql-dev:3306/xxl_job?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai  --spring.datasource.username=root --spring.datasource.password=R(E8gamA --xxl.job.accessToken=4f9802e383b24d7e8b196df9dac0f77e"
        TZ: "Asia/Shanghai"
     deploy:
+      placement:
+        constraints: [node.labels.type == master]
       resources:
         limits:
           cpus: "0.20"
           memory: "3G"
     networks:
-         vmnet:
-            ipv4_address: 172.19.0.9
+      - vmnet
     depends_on:
-      - "mysql"
+      - "mysql-dev"
 
-  mongodb:
+  mongodb-dev:
     image: mongo:5.0.22
-    container_name: mongodb
-    restart: always
     ports:
       - "27017:27017"
     volumes:
-      - "./data/mongo/:/data/db"
+      - "./mount/mongo/:/data/db"
     environment:
       - "MONGO_INITDB_ROOT_USERNAME=admin"
       - "MONGO_INITDB_ROOT_PASSWORD=admin"
       - "TZ=Asia/Shanghai"
     deploy:
+      placement:
+        constraints: [node.labels.type == master]
       resources:
         limits:
           cpus: "0.20"
           memory: "2G"
     networks:
-          vmnet:
-            ipv4_address: 172.19.0.10
+       - vmnet
 
 
-  mongo-express:
+
+
+
+  mongo-express-dev:
     image: mongo-express:1.0.0-20
-    container_name: mongo-express
-    restart: always
     ports:
       - "8081:8081"
     environment:
       - "ME_CONFIG_MONGODB_ADMINUSERNAME=admin"
       - "ME_CONFIG_MONGODB_ADMINPASSWORD=admin"
-      - "ME_CONFIG_MONGODB_SERVER=mongodb"   #web default user:admin passwd:pass
+      - "ME_CONFIG_MONGODB_SERVER=mongodb-dev"
       - "TZ=Asia/Shanghai"
     deploy:
+      placement:
+        constraints: [node.labels.type == master]
       resources:
         limits:
           cpus: "0.10"
           memory: "500M"
     networks:
-          vmnet:
-            ipv4_address: 172.19.0.11
+       -  vmnet
 
 
 networks:
     vmnet:
-      ipam:
-         config:
-         - subnet: 172.19.0.0/16
+      driver: overlay
+      external: true

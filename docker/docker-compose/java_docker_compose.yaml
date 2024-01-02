@@ -7,7 +7,7 @@ services:
     restart: always
     stdin_open: true   #相当于docker run -i
     tty: true   #相当于docker run -t  在容器需要挂起时使用
-    extra_hosts:
+    extra_hosts: &common_host
       -  "global-elasticsearch-dev:192.168.60.204"
       -  "global-nacos-dev:192.168.60.205"
       -  "global-mysql-dev:192.168.60.205"
@@ -16,6 +16,12 @@ services:
       -  "global-xxljob-dev:192.168.60.205"
       -  "global-mongo-dev:192.168.60.205"
       -  "global-apisix-dev:192.168.60.205"
+      -  "base-platform-service:172.18.0.2"
+      -  "wygtech-workflow-service:172.18.0.3"
+      -  "sfsj-event-center-service:172.18.0.4"
+      -  "tool-center:172.18.0.5"
+      -  "wygtech-signature-service:172.18.0.6"
+      -  "wygtech-boss-service:172.18.0.7"
     environment:
       - "TZ=Asia/Shanghai"
     volumes:
@@ -33,15 +39,7 @@ services:
     restart: always
     stdin_open: true
     tty: true
-    extra_hosts:
-      - "global-elasticsearch-dev:192.168.60.204"
-      - "global-nacos-dev:192.168.60.205"
-      - "global-mysql-dev:192.168.60.205"
-      - "global-redis-dev:192.168.60.205"
-      - "global-rabbitmq-dev:192.168.60.205"
-      - "global-xxljob-dev:192.168.60.205"
-      - "global-mongo-dev:192.168.60.205"
-      - "global-apisix-dev:192.168.60.205"
+    extra_hosts: *common_host
     environment:
       - "TZ=Asia/Shanghai"
     volumes:
@@ -61,15 +59,7 @@ services:
     restart: always
     stdin_open: true
     tty: true
-    extra_hosts:
-      - "global-elasticsearch-dev:192.168.60.204"
-      - "global-nacos-dev:192.168.60.205"
-      - "global-mysql-dev:192.168.60.205"
-      - "global-redis-dev:192.168.60.205"
-      - "global-rabbitmq-dev:192.168.60.205"
-      - "global-xxljob-dev:192.168.60.205"
-      - "global-mongo-dev:192.168.60.205"
-      - "global-apisix-dev:192.168.60.205"
+    extra_hosts: *common_host
     environment:
       - "TZ=Asia/Shanghai"
     volumes:
@@ -90,15 +80,7 @@ services:
     restart: always
     stdin_open: true
     tty: true
-    extra_hosts:
-      - "global-elasticsearch-dev:192.168.60.204"
-      - "global-nacos-dev:192.168.60.205"
-      - "global-mysql-dev:192.168.60.205"
-      - "global-redis-dev:192.168.60.205"
-      - "global-rabbitmq-dev:192.168.60.205"
-      - "global-xxljob-dev:192.168.60.205"
-      - "global-mongo-dev:192.168.60.205"
-      - "global-apisix-dev:192.168.60.205"
+    extra_hosts: *common_host
     environment:
       - "TZ=Asia/Shanghai"
     volumes:
@@ -118,15 +100,7 @@ services:
     restart: always
     stdin_open: true
     tty: true
-    extra_hosts:
-      - "global-elasticsearch-dev:192.168.60.204"
-      - "global-nacos-dev:192.168.60.205"
-      - "global-mysql-dev:192.168.60.205"
-      - "global-redis-dev:192.168.60.205"
-      - "global-rabbitmq-dev:192.168.60.205"
-      - "global-xxljob-dev:192.168.60.205"
-      - "global-mongo-dev:192.168.60.205"
-      - "global-apisix-dev:192.168.60.205"
+    extra_hosts: *common_host
     environment:
       - "TZ=Asia/Shanghai"
     volumes:
@@ -146,15 +120,7 @@ services:
     restart: always
     stdin_open: true
     tty: true
-    extra_hosts:
-      - "global-elasticsearch-dev:192.168.60.204"
-      - "global-nacos-dev:192.168.60.205"
-      - "global-mysql-dev:192.168.60.205"
-      - "global-redis-dev:192.168.60.205"
-      - "global-rabbitmq-dev:192.168.60.205"
-      - "global-xxljob-dev:192.168.60.205"
-      - "global-mongo-dev:192.168.60.205"
-      - "global-apisix-dev:192.168.60.205"
+    extra_hosts: *common_host
     environment:
       - "TZ=Asia/Shanghai"
     volumes:
